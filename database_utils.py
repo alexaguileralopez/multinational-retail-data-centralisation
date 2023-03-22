@@ -1,51 +1,62 @@
 import psycopg2
 import yaml
 from sqlalchemy import create_engine
+from sqlalchemy import inspect
 import pandas as pd
 
 
 class DatabaseConnector:
 
     def __init__(self):
+
         
-        self.creds = {}
+        
         pass
 
     def read_db_creds(self):
         with open('db_creds.yaml') as f:
-            self.creds = yaml.safe_load(f)
+            creds = yaml.safe_load(f)
 
             #returns dictionary of credentials
-        return self.creds
+        return creds
         
     def init_db_engine(self):
         
-        HOST = self.creds['RDS_HOST']
-        USER = self.creds['RDS_USER']
-        PASSWORD = self.creds['RDS_PASSWORD']
-        DATABASE = self.creds['RDS_DATABASE']
-        PORT = self.creds['RDS_PORT']
+        #calls read db creds method to get credentials from yaml file
+        HOST = self.read_db_creds().get('RDS_HOST')
+        USER = self.read_db_creds().get('RDS_HOST')
+        PASSWORD = self.read_db_creds().get('RDS_PASSWORD')
+        DATABASE = self.read_db_creds().get('RDS_DATABASE')
+        PORT = self.read_db_creds().get('RDS_PORT')
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
 
-        #connect to postgres database
-        with psycopg2.connect(dbname = DATABASE, user = USER,password=PASSWORD, host=HOST, port=PORT) as conn:
-            
-            #create engine
-            engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
-            #connect engine
-            engine.connect()
+        #creates engine with the data supplied by the creds dictionary
+        engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
+
+        return engine
 
 
     def init_db_tables(self):
         
-        pass
+        #receive engine created in method to initialise it
+        engine = self.init_db_engine()
+        # connect to engine
+        engine.connect()
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
 
-    
+        engine.execute('''SELECT *''').fetchall()
 
+        
+
+        
 hello = DatabaseConnector()
-hello.read_db_creds()
-print(hello.creds)
+hello.init_db_tables()
+
+
+
+
 
 
 
