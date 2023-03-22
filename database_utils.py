@@ -2,15 +2,13 @@ import psycopg2
 import yaml
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
+from sqlalchemy import text
 import pandas as pd
 
 
 class DatabaseConnector:
 
     def __init__(self):
-
-        
-        
         pass
 
     def read_db_creds(self):
@@ -22,12 +20,14 @@ class DatabaseConnector:
         
     def init_db_engine(self):
         
+        # call read db creds once and get credentials
+        creds = self.read_db_creds()
         #calls read db creds method to get credentials from yaml file
-        HOST = self.read_db_creds().get('RDS_HOST')
-        USER = self.read_db_creds().get('RDS_HOST')
-        PASSWORD = self.read_db_creds().get('RDS_PASSWORD')
-        DATABASE = self.read_db_creds().get('RDS_DATABASE')
-        PORT = self.read_db_creds().get('RDS_PORT')
+        HOST = creds['RDS_HOST']
+        USER = creds['RDS_USER']
+        PASSWORD = creds['RDS_PASSWORD']
+        DATABASE = creds['RDS_DATABASE']
+        PORT = creds['RDS_PORT']
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
 
@@ -37,22 +37,22 @@ class DatabaseConnector:
         return engine
 
 
-    def init_db_tables(self):
+    def list_db_tables(self):
         
         #receive engine created in method to initialise it
         engine = self.init_db_engine()
         # connect to engine
-        engine.connect()
-        inspector = inspect(engine)
-        tables = inspector.get_table_names()
+        with engine.connect() as connection:
+            #selects all tables from sales data
+            result = connection.execute(text("SHOW TABLES"))
+            return result
 
-        engine.execute('''SELECT *''').fetchall()
+    def upload_to_db(self):
 
-        
+        pass
 
-        
-hello = DatabaseConnector()
-hello.init_db_tables()
+    
+
 
 
 
