@@ -45,7 +45,7 @@ class DatabaseConnector:
         engine = self.init_db_engine()
         # connect to engine
         with engine.connect() as connection:
-            #selects all tables from sales data
+            #selects all tables from sales data (doesn't exist yet)
             result = connection.execute(text("SELECT * FROM sales_data"))
             return result
 

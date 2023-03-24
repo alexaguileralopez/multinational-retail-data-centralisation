@@ -17,7 +17,6 @@ class DataExtractor:
 
     def __init__(self):
 
-        
         self.DatabaseConnector = database_utils.DatabaseConnector()
 
         #### note: I don't know where to place this dictionary
@@ -60,17 +59,20 @@ class DataExtractor:
     # extracting all stores from the API saving them in pandas dataframe
     def retrieve_stores_data(self, retrieve_store_endpoint):
 
-        stores = requests.get(retrieve_store_endpoint)
-        df = pd.DataFrame(stores)
+        stores = requests.get(retrieve_store_endpoint) 
+        df = pd.DataFrame(stores) # is this necessary or does the previous one already return a pd dataframe?
 
         return df
     
-
+    # product info is stored in s3 bucket on AWS in CSV format
     def extract_from_s3(self, product_adress):
 
+        # download and extract the info returning pandas dataframe
         s3_client = boto3.client('s3')
-        #
         
+        # reading prduct address, which should contain a csv file
+        df = pd.read_csv(product_adress)
+
 
         return df
 
