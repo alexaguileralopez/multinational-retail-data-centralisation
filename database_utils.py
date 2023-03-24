@@ -44,12 +44,14 @@ class DatabaseConnector:
         # connect to engine
         with engine.connect() as connection:
             #selects all tables from sales data
-            result = connection.execute(text("SHOW TABLES"))
+            result = connection.execute(text("SELECT * FROM sales_data"))
             return result
 
     def upload_to_db(self):
 
-        pass
+        dim_users = self.list_db_tables()
+
+        return dim_users
 
     
 
