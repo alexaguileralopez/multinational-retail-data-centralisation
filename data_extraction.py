@@ -2,6 +2,9 @@ import pandas as pd
 import database_utils
 import tabula
 import requests
+import boto3
+
+
 
 
 #### note: I don't know where to place this dictionary
@@ -43,8 +46,10 @@ class DataExtractor:
         
         return dfs
     
-    
+
     def list_number_of_stores(self, number_of_stores_endpoint, header_details):
+
+        ## header details haven't been used yet as get requests don't need the key??
 
         number_of_stores = requests.get(number_of_stores_endpoint)
 
@@ -59,6 +64,16 @@ class DataExtractor:
         df = pd.DataFrame(stores)
 
         return df
+    
+
+    def extract_from_s3(self, product_adress):
+
+        s3_client = boto3.client('s3')
+        #
+        
+
+        return df
+
 
     
 
