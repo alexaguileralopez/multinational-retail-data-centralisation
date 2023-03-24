@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy import inspect
 from sqlalchemy import text
 import pandas as pd
+import data_extraction 
+import data_cleaning
 
 
 class DatabaseConnector:
@@ -51,7 +53,9 @@ class DatabaseConnector:
 
         dim_users = self.list_db_tables()
 
-        return dim_users
+        dim_card_details = data_cleaning.DataCleaning().clean_card_data()
+
+        return dim_users, dim_card_details
 
     
 
