@@ -37,6 +37,16 @@ class DataCleaning:
 
         return card_data
     
+    def clean_store_data(self):
+
+        store_data = data_extraction.DataExtractor().retrieve_stores_data("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}")
+
+        store_data.dropna(how = 'all')
+        store_data.drop_duplicates()
+
+
+        return store_data
+    
         
 
 

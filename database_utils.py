@@ -55,7 +55,11 @@ class DatabaseConnector:
 
         dim_card_details = data_cleaning.DataCleaning().clean_card_data()
 
-        return dim_users, dim_card_details
+        dim_store_details = data_cleaning.DataCleaning().clean_store_data()
+
+        return dim_users, dim_card_details, dim_store_details
+    
+    
 
     
 

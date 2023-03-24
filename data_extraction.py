@@ -1,8 +1,13 @@
 import pandas as pd
 import database_utils
 import tabula
+import requests
 
 
+#### note: I don't know where to place this dictionary
+header_details = {
+    'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
+}
 
 class DataExtractor:
     
@@ -11,7 +16,12 @@ class DataExtractor:
 
         
         self.DatabaseConnector = database_utils.DatabaseConnector()
-        
+
+        #### note: I don't know where to place this dictionary
+        self.header_details = {
+             'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
+            }
+
         
         
 
@@ -32,6 +42,26 @@ class DataExtractor:
         dfs = tabula.read_pdf(pdf_path)
         
         return dfs
+    
+    
+    def list_number_of_stores(self, number_of_stores_endpoint, header_details):
+
+        number_of_stores = requests.get(number_of_stores_endpoint)
+
+
+        return number_of_stores
+    
+
+    # extracting all stores from the API saving them in pandas dataframe
+    def retrieve_stores_data(self, retrieve_store_endpoint):
+
+        stores = requests.get(retrieve_store_endpoint)
+        df = pd.DataFrame(stores)
+
+        return df
+
+    
+
 
 
 
