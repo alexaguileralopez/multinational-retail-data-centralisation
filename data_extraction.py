@@ -39,7 +39,7 @@ class DataExtractor:
 
         engine = database_connector_instance.init_db_engine()
 
-        with engine.begin() as conn:
+        with engine.connect() as conn:
 
             table = pd.read_sql_table(table_name, conn)
 
