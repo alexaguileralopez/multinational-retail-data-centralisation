@@ -6,6 +6,8 @@ from sqlalchemy import text
 import pandas as pd
 import data_extraction 
 import data_cleaning
+import mysql as msql
+from mysql.connector import Error
 
 
 class DatabaseConnector:
@@ -45,7 +47,7 @@ class DatabaseConnector:
         engine = self.init_db_engine()
         # connect to engine
         with engine.connect() as connection:
-            #selects all tables from sales data (doesn't exist yet)
+            #selects all tables from dataset
             result = connection.execute(text("""SELECT table_name FROM information_schema.tables 
             WHERE table_schema = 'public' """))
 
@@ -54,11 +56,17 @@ class DatabaseConnector:
             # returns list of all tables inside the database
             return result
         
-        
 
-    def upload_to_db(self):
 
-        dim_users = self.list_db_tables()
+    def upload_to_db(self, dataframe, table_name):
+
+        # need to connect to database "sales data" that was creaetd
+       
+       
+        #obtain the clean data
+        dim_users = data_cleaning.DataCleaning().clean_user_data()
+
+
 
         dim_card_details = data_cleaning.DataCleaning().clean_card_data()
 
