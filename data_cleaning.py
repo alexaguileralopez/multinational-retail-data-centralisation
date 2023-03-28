@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np 
 import data_extraction
+import database_utils
 
 class DataCleaning:
     
@@ -9,6 +10,10 @@ class DataCleaning:
 
     def clean_user_data(self):
 
+        user_data = data_extraction.DataExtractor().read_rds_table(database_connector_instance= database_utils.DatabaseConnector(), 
+                                                                   table_name= 'user data')
+        user_data.dropna(how = 'all')
+        user_data.drop_duplicates()
 
 
         pass
@@ -46,6 +51,12 @@ class DataCleaning:
 
 
         return store_data
+    
+    def convert_product_weights(self, products_df):
+
+        return products_df
+
+
     
         
 

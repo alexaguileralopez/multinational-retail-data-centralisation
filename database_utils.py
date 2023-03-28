@@ -46,8 +46,15 @@ class DatabaseConnector:
         # connect to engine
         with engine.connect() as connection:
             #selects all tables from sales data (doesn't exist yet)
-            result = connection.execute(text("SELECT * FROM sales_data"))
+            result = connection.execute(text("""SELECT table_name FROM information_schema.tables 
+            WHERE table_schema = 'public' """))
+
+
+            result = result.fetchall()
+            # returns list of all tables inside the database
             return result
+        
+        
 
     def upload_to_db(self):
 

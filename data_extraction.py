@@ -27,16 +27,16 @@ class DataExtractor:
         
         
 
-    def read_rds_table(self):
+    def read_rds_table(self, database_connector_instance, table_name):
         
         # get the name of the table containing user data
-        table_name = self.DatabaseConnector.list_db_tables()
+        tables = database_connector_instance.list_db_tables()
 
         # extract table containing user data and return as a pandas DataFrame
-        table = pd.read_sql_table('name', table_name)
-
+        table = pd.read_sql_table(table_name, tables)
 
         return table
+    
     
     def retrieve_pdf_data(self, pdf_path):
         #use tabula package to extract data from pdf document and convert it to pandas df
