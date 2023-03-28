@@ -19,3 +19,20 @@ tester_1 = data_extraction.DataExtractor()
 tester_1.read_rds_table(tester, 'legacy_users')
 
 # %%
+table = tester_1.read_rds_table(tester, 'legacy_users')
+table.info()
+
+# %%
+table.isna().sum()
+
+# %%
+table.duplicated().sum()
+
+# %%
+# saving as excel file in current directory to visualize table
+
+import pandas as pd
+import os
+
+directory = os.getcwd()
+table.to_csv('user_data', path_or_buf= directory)
