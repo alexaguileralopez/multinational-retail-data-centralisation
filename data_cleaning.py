@@ -8,26 +8,36 @@ class DataCleaning:
     def __init__(self):
         pass
 
+
     def clean_user_data(self):
 
         user_data = data_extraction.DataExtractor().read_rds_table(database_connector_instance= database_utils.DatabaseConnector(), 
                                                     table_name= 'legacy_user')
-        # drop rows with null values, however, from exploring the data, we know 
-        # there are no null values
-        user_data.dropna()
+
 
         # select which columns have to have unique values, and drop the duplicates
 
         clean_user_data = user_data.drop_duplicates(subset= ['email_adress', 'address', 'phone_number', 'user_uuid'], keep = 'last').reset_index(drop = True)
 
+        clean_user_data.drop(columns= ['index'], inplace= True)
 
-        #stablish a date format and apply it to the columns containing dates
-        date_format = "%Y%m%d"
-        pd.to_datetime(clean_user_data["date_of_birth"], format= date_format)
-        pd.to_datetime(clean_user_data["join_date"], format= date_format)
+        # replace newline sign \n in adress column by ' '
 
-        
+        clean_user_data['address'] = clean_user_data['adress'].replace('\n', ' ', regex= True)
+
+        #stablish a date format and apply it to the 2 columns containing dates
+        date_format = "%Y-%m-%d"
+        clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format)
+        clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format)
+
+        #last step is to drop null values, and to reset the index, as 
+        # less values will appear now that some will be dropped
+        clean_user_data.dropna()
+        clean_user_data.reset_index(drop= True, inplace= True)
+
         return clean_user_data
+    
+
 
     def clean_card_data(self):
 
