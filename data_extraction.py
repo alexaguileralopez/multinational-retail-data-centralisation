@@ -3,6 +3,7 @@ import database_utils
 import tabula
 import requests
 import boto3
+import sqlalchemy as text
 
 
 
@@ -27,13 +28,24 @@ class DataExtractor:
         
         
 
-    def read_rds_table(self, database_connector_instance, table_name):
+    def read_rds_table(self, database_connector_instance = database_utils.DatabaseConnector(), table_name = str):
         
         # get the name of the table containing user data
+        
+        
         tables = database_connector_instance.list_db_tables()
 
+        print(tables)
+
+        engine = database_connector_instance.init_db_engine()
+
+        with engine.begin() as conn:
+
+            table = pd.read_sql_table(table_name, conn)
+
+       
+        
         # extract table containing user data and return as a pandas DataFrame
-        table = pd.read_sql_table(table_name, tables)
 
         return table
     
@@ -84,5 +96,5 @@ class DataExtractor:
 
 
 
-hello = DataExtractor()
-hello.retrieve_pdf_data("https://portal.theaicore.com/pathway/8955a07c-2223-4757-9f74-2aa287aa1aca#:~:text=document%20at%20following-,link,-.%0AThen%20return")
+#hello = DataExtractor()
+#hello.retrieve_pdf_data("https://portal.theaicore.com/pathway/8955a07c-2223-4757-9f74-2aa287aa1aca#:~:text=document%20at%20following-,link,-.%0AThen%20return")

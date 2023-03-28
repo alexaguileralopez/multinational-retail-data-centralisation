@@ -16,7 +16,7 @@ class DataCleaning:
         user_data.drop_duplicates()
 
 
-        pass
+        return user_data
 
     def clean_card_data(self):
 
