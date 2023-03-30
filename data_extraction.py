@@ -44,11 +44,14 @@ class DataExtractor:
 
         return df
     
-    
+    # installed tabula in conda as well 
     def retrieve_pdf_data(self, pdf_path):
         #use tabula package to extract data from pdf document and convert it to pandas df
         
-        dfs = tabula.read_pdf(pdf_path)
+        dfs = tabula.read_pdf(pdf_path, pages= 'all')
+        # dfs is now a list with 279 dataframes (each page)
+        dfs = pd.concat(dfs)
+        # dfs is now a pandas dataframe containing all the elements
         
         return dfs
     

@@ -72,4 +72,32 @@ table.dropna()
 table.reset_index(drop=True, inplace=True)
 table
 
+# %% packages to run for card details extraction (pdf)
+
+import pandas as pd
+
+import tabula
+
+
+link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
+dfs = tabula.read_pdf(link, pages= 'all')
+#the dfs stores 279 pages, which are 279 list elements
+# it is necessary to concatenate these 279 elements, which are 279 pdf pages
+
+
+dfs = pd.concat(dfs)
+
+dfs.info()
+
+
+
+
+
+
+
+
+
+
+                      
+
 # %%
