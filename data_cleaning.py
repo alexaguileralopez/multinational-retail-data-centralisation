@@ -41,27 +41,25 @@ class DataCleaning:
 
     def clean_card_data(self):
 
-        #retrieve data and put into pd dataframe
-        card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://portal.theaicore.com/pathway/8955a07c-2223-4757-9f74-2aa287aa1aca#:~:text=document%20at%20following-,link,-.%0AThen%20return")
-        card_data = pd.DataFrame(card_data)
-
-        # drop duplicates
-        card_data.dropna(how = 'all')
+        #get data (it is a pd dataframe)
+        card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
+        
+        # values can be duplicate so no cleaning in that sense
 
        ## check formatting errors first
-
        ## Assign date_format
-        date_format = "%Y%m%d"
-        # date_format = "%d-%m-%Y"
-        pd.to_datetime(card_data["date_payment_confirmed"], format=date_format)
+        date_format_1= "%m/%Y"
+        date_format_2= "%Y-%m-%d"
+    
+       #transform date to standard datetime in expiry_date column
+        card_data['expiry_date']= pd.to_datetime(card_data["expiry_date"], format = date_format_1)
+        card_data['date_payment_confirmed']=pd.to_datetime(card_data["date_payment_confirmed"], format= date_format_2)
 
-       #transform date to standard datetime
-        card_data= pd.to_datetime(card_data["date_payment_confirmed"])
-
-        # transforming into pd dataframe and dropping duplicated rows
-        card_data.drop_duplicates()
+        #drop null values
+        card_data.dropna()
 
         return card_data
+    
     
     def clean_store_data(self):
 
