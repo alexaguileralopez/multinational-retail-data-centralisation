@@ -6,8 +6,8 @@ from sqlalchemy import text
 import pandas as pd
 import data_extraction 
 import data_cleaning
-import mysql as msql
-from mysql.connector import Error
+import mysql 
+
 
 
 class DatabaseConnector:
@@ -57,22 +57,16 @@ class DatabaseConnector:
             return result
         
 
+    # to make use of this method, it is necessary to provide a dataframe (from data cleaning),
+    # the table name that it is going to be saved as
+    def upload_to_db(self, dataframe = pd.DataFrame, table_name=str):
+      
+        # need to connect to database "sales data" that was created
+        conn = psycopg2.connect("host=localhost dbname=Sales_Data user=postgres")
+        cur = conn.cursor()
+        dataframe.to_sql(table_name, cur, if_exists= 'replace' )
 
-    def upload_to_db(self, dataframe, table_name):
 
-        # need to connect to database "sales data" that was creaetd
-       
-       
-        #obtain the clean data
-        dim_users = data_cleaning.DataCleaning().clean_user_data()
-
-
-
-        dim_card_details = data_cleaning.DataCleaning().clean_card_data()
-
-        dim_store_details = data_cleaning.DataCleaning().clean_store_data()
-
-        return dim_users, dim_card_details, dim_store_details
     
     
 

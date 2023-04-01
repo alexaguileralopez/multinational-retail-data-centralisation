@@ -90,6 +90,17 @@ dfs = pd.concat(dfs)
 dfs.info()
 
 
+# %% To upload tables to local database
+
+import data_cleaning
+import data_extraction
+
+card_data = data_cleaning.DataCleaning().clean_card_data()
+
+#database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
+
+
+
 
 
 
