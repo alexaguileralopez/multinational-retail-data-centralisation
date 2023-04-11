@@ -12,23 +12,23 @@ class DataCleaning:
     def clean_user_data(self):
 
         user_data = data_extraction.DataExtractor().read_rds_table(database_connector_instance= database_utils.DatabaseConnector(), 
-                                                    table_name= 'legacy_user')
+                                                    table_name= 'legacy_users')
 
 
         # select which columns have to have unique values, and drop the duplicates
 
-        clean_user_data = user_data.drop_duplicates(subset= ['email_adress', 'address', 'phone_number', 'user_uuid'], keep = 'last').reset_index(drop = True)
+        clean_user_data = user_data.drop_duplicates(subset= ['email_address', 'address', 'phone_number', 'user_uuid'], keep = 'last').reset_index(drop = True)
 
         clean_user_data.drop(columns= ['index'], inplace= True)
 
         # replace newline sign \n in adress column by ' '
 
-        clean_user_data['address'] = clean_user_data['adress'].replace('\n', ' ', regex= True)
+        clean_user_data['address'] = clean_user_data['address'].replace('\n', ' ', regex= True)
 
         #stablish a date format and apply it to the 2 columns containing dates
         date_format = "%Y-%m-%d"
-        clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format)
-        clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format)
+        clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format, errors= 'coerce')
+        clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format, errors='coerce')
 
         #last step is to drop null values, and to reset the index, as 
         # less values will appear now that some will be dropped
@@ -48,7 +48,7 @@ class DataCleaning:
 
        ## check formatting errors first
        ## Assign date_format
-        date_format_1= "%m/%Y"
+        date_format_1= "%m/%y" # year with 2 digits instead of 4 (2026 -> 26)
         date_format_2= "%Y-%m-%d"
     
        #transform date to standard datetime in expiry_date column

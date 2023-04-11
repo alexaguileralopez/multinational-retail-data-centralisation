@@ -62,7 +62,7 @@ class DatabaseConnector:
     def upload_to_db(self, dataframe = pd.DataFrame, table_name=str):
       
         # need to connect to database "sales data" that was created
-        conn = psycopg2.connect("host=localhost dbname=Sales_Data user=postgres")
+        conn = psycopg2.connect("dbname=Sales_Data user=postgres password=Iliberis2017")
         cur = conn.cursor()
         dataframe.to_sql(table_name, cur, if_exists= 'replace' )
 

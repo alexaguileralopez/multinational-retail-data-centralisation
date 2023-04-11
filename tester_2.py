@@ -1,6 +1,7 @@
 import data_cleaning
-import database_utils
-import data_extraction
+import pandas as pd
+
+
 
 card_data = data_cleaning.DataCleaning().clean_card_data()
 

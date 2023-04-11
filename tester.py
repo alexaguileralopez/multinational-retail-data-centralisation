@@ -94,10 +94,13 @@ dfs.info()
 
 import data_cleaning
 import data_extraction
+import database_utils
 
-card_data = data_cleaning.DataCleaning().clean_card_data()
+user_data = data_cleaning.DataCleaning().clean_user_data()
 
-#database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
+database_utils.DatabaseConnector().upload_to_db(user_data, 'dim_users')
+
+
 
 
 
