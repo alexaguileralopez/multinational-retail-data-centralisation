@@ -44,7 +44,8 @@ class DataCleaning:
         #get data (it is a pd dataframe)
         card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
         
-        # values can be duplicate so no cleaning in that sense
+        # first drop NULL values to not have problems while checking errors
+        card_data.dropna()
 
        ## check formatting errors first
        ## Assign date_format

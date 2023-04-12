@@ -97,8 +97,10 @@ import data_extraction
 import database_utils
 
 user_data = data_cleaning.DataCleaning().clean_user_data()
+card_data = data_cleaning.DataCleaning().clean_card_data()
 
 database_utils.DatabaseConnector().upload_to_db(user_data, 'dim_users')
+database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
 
 ## need to fix the error in upload to db in order to being able to connect and upload the dataframe
 
