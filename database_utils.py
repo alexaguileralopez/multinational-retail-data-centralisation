@@ -73,7 +73,9 @@ class DatabaseConnector:
         postgres_str = f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
         cnx = create_engine(postgres_str)
         print("Engine created")
-        dataframe.to_sql(table_name, con = cnx, index=False)
+        dataframe.to_sql(table_name, con = cnx, index=False, if_exists= 'replace')
+        print("Table uploaded to Sales Data")
+
 
 
       
