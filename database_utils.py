@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import Error
 import yaml
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
@@ -60,11 +61,34 @@ class DatabaseConnector:
     # to make use of this method, it is necessary to provide a dataframe (from data cleaning),
     # the table name that it is going to be saved as
     def upload_to_db(self, dataframe = pd.DataFrame, table_name=str):
+
+        HOST = 'localhost'
+        USER = 'postgres'
+        PASSWORD = 'Iliberis2017'
+        DATABASE = 'Sales_Data'
+        PORT = 5432
+        DATABASE_TYPE = 'postgresql'
+        DBAPI = 'psycopg2'
+        
+        postgres_str = f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+        cnx = create_engine(postgres_str)
+        print("Engine created")
+        dataframe.to_sql(table_name, con = cnx, index=False)
+
+
       
-        # need to connect to database "sales data" that was created
-        conn = psycopg2.connect("dbname=Sales_Data user=postgres password=Iliberis2017")
-        cur = conn.cursor()
-        dataframe.to_sql(table_name, cur, if_exists= 'replace' )
+        # connect to database "sales data" that was created and upload the dataframe 
+        #conn = psycopg2.connect("host=localhost dbname=Sales_Data user=postgres password=Iliberis2017")
+        #cur = conn.cursor()
+
+
+
+
+        #dataframe.to_sql(name= table_name, con= conn, if_exists= 'replace')
+        # commit changes to db
+
+        
+
 
 
     

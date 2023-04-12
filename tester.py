@@ -100,6 +100,9 @@ user_data = data_cleaning.DataCleaning().clean_user_data()
 
 database_utils.DatabaseConnector().upload_to_db(user_data, 'dim_users')
 
+## need to fix the error in upload to db in order to being able to connect and upload the dataframe
+
+
 
 
 
