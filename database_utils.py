@@ -78,17 +78,6 @@ class DatabaseConnector:
 
 
 
-      
-        # connect to database "sales data" that was created and upload the dataframe 
-        #conn = psycopg2.connect("host=localhost dbname=Sales_Data user=postgres password=Iliberis2017")
-        #cur = conn.cursor()
-
-
-
-
-        #dataframe.to_sql(name= table_name, con= conn, if_exists= 'replace')
-        # commit changes to db
-
         
 
 

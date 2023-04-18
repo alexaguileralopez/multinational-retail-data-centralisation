@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 import data_extraction
 import database_utils
+from datetime import datetime
 
 class DataCleaning:
     
@@ -44,19 +45,15 @@ class DataCleaning:
         #get data (it is a pd dataframe)
         card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
         
-        # first drop NULL values to not have problems while checking errors
-        card_data.dropna()
+        # first drop the values that contain NULL as a string  
+        #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
 
-       ## check formatting errors first
-       ## Assign date_format
-        date_format_1= "%m/%y" # year with 2 digits instead of 4 (2026 -> 26)
-        date_format_2= "%Y-%m-%d"
-    
-       #transform date to standard datetime in expiry_date column
-        card_data['expiry_date']= pd.to_datetime(card_data["expiry_date"], format = date_format_1)
-        card_data['date_payment_confirmed']=pd.to_datetime(card_data["date_payment_confirmed"], format= date_format_2)
+        card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', format= '%Y-%m-%d')
 
-        #drop null values
+        card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
+        
+        card_data = card_data.dropna()
+
         card_data.dropna()
 
         return card_data

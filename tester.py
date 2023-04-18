@@ -105,6 +105,82 @@ database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
 ## need to fix the error in upload to db in order to being able to connect and upload the dataframe
 
 
+# %% Better version of data cleaning
+
+import data_cleaning
+import data_extraction
+import database_utils
+import numpy as np
+import pandas as pd
+from datetime import datetime
+
+card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
+
+new_1 = card_data['date_payment_confirmed']
+print('First length of new_1 and new_2 is:', len(new_1))
+new_1 = pd.to_datetime(new_1, errors= 'coerce')
+print('Length of new_1 is;', len(new_1))
+
+new_2 = card_data['date_payment_confirmed']
+
+new_2 = pd.to_datetime(new_2, errors= 'coerce', format= '%Y-%m-%d')
+print('Length of new_2 is:', len(new_2))
+
+new_2.dropna()
+
+print('Length of new_2 dropping na is:', len(new_2))
+
+#for y in new:
+        #card_data['date_payment_confirmed'][y] = datetime.strptime(card_data['date_payment_confirmed'][y], '%d %B %Y')
+
+
+# %% Another approach to data cleaning
+
+import data_cleaning
+import data_extraction
+import database_utils
+import pandas as pd
+from datetime import datetime
+
+
+card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
+
+def replace_date_format(date_string):
+    try:
+        # try to parse the date string using the format of date_string_1
+        date_object = datetime.strptime(date_string, '%Y-%m-%d')
+        return date_string #return the original date string if it is already in the correct format
+   
+    except ValueError:
+        pass
+
+    try:
+
+        date_object = datetime.strptime(date_string, '%Y %B %d')
+        return date_object.strftime('%Y-%m-%d')  # return the date string in the format of date_string_1
+    
+    except ValueError:
+        pass
+    
+    try:
+        date_object = datetime.strptime(date_string, '%B %Y %d')      
+        return date_string # return the original date string if it cannot be parsed using either format
+    except ValueError:
+        pass
+    # apply the replace_date_format function to the timestamp column of the dataframe
+    return date_string
+
+card_data['date_payment_confirmed'] = card_data['date_payment_confirmed'].apply(replace_date_format())
+
+#print the updated dataframe
+print(card_data['date_payment_confirmed'])
+
+
+
+    
+
+
+
 
 
 
