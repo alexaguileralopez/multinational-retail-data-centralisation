@@ -126,7 +126,8 @@ new_2 = card_data['date_payment_confirmed']
 new_2 = pd.to_datetime(new_2, errors= 'coerce', format= '%Y-%m-%d')
 print('Length of new_2 is:', len(new_2))
 
-new_2.dropna()
+new_2 = new_2.dropna()
+
 
 print('Length of new_2 dropping na is:', len(new_2))
 
@@ -194,5 +195,79 @@ print(card_data['date_payment_confirmed'])
 
 
                       
+
+# %% Task 5: Extract and clean the details of each store
+import requests
+import pandas as pd
+
+return_number_stores = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
+retrieve_store_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/50'
+
+key = { 'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
+
+
+num_stores = requests.get('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', headers= key)
+store = requests.get(retrieve_store_endpoint, headers= key)
+
+num_stores.json() # status code 200 (OK), gives a literal 'number_stores': 451
+print(num_stores.json()['number_stores'])
+
+
+#retrieving a json file from the url
+retrieved_stores = requests.get(retrieve_store_endpoint, headers= key).json()
+
+
+
+#turning json into pandas normalized dataframe
+retrieved_stores = pd.json_normalize(retrieved_stores)
+
+print(retrieved_stores)
+
+
+
+retrieved_store_2_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/51'
+retrieved_store_2 = requests.get(retrieved_store_2_url, headers= key).json()
+retrieved_store_2 = pd.json_normalize(retrieved_store_2)
+print(retrieved_store_2)
+
+
+
+
+# necessary to figure out how to retrieve the store endpoint given a specific store number
+
+# %%
+import requests
+import pandas as pd
+
+number_stores_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
+retrieve_store_endpoint_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/'
+key = { 'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
+
+number_stores = requests.get('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', headers= key).json()['number_stores']
+
+df = pd.DataFrame
+
+for i in range(0,5):
+    params = {'store_number': i}
+    store_data = requests.get(retrieve_store_endpoint_url, params = params, headers= key)
+    print(store_data.json())
+
+# %%
+import requests
+import pandas as pd
+from pandas import json_normalize
+
+key = { 'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
+number_stores_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
+retrieve_store_endpoint_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
+
+number_stores = requests.get('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', headers= key).json()['number_stores']
+df = pd.DataFrame()
+
+for i in range(0,number_stores):
+    store_data = requests.get(retrieve_store_endpoint_url.format(store_number = i), headers= key).json()
+    store_data = json_normalize(store_data)
+    df = pd.concat([df, store_data])
+
 
 # %%

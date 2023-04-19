@@ -4,14 +4,12 @@ import tabula
 import requests
 import boto3
 import sqlalchemy as text
+from pandas import json_normalize
 
 
 
 
-#### note: I don't know where to place this dictionary
-header_details = {
-    'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
-}
+
 
 class DataExtractor:
     
@@ -59,18 +57,25 @@ class DataExtractor:
     def list_number_of_stores(self, number_of_stores_endpoint, header_details):
 
         ## header details haven't been used yet as get requests don't need the key??
+        
+        number_of_stores = requests.get(number_of_stores_endpoint, header_details)
 
-        number_of_stores = requests.get(number_of_stores_endpoint)
 
-
-        return number_of_stores
+        return number_of_stores.json()['number_stores']
     
 
     # extracting all stores from the API saving them in pandas dataframe
-    def retrieve_stores_data(self, retrieve_store_endpoint):
+    def retrieve_stores_data(self, retrieve_store_url):
 
-        stores = requests.get(retrieve_store_endpoint) 
-        df = pd.DataFrame(stores) # is this necessary or does the previous one already return a pd dataframe?
+        #pd dataframe where data is going to be stored
+        df = pd.DataFrame()
+        retrieve_store_endpoint_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
+
+        number_stores = self.list_number_of_stores(number_stores_url)
+        for i in range(0,number_stores):
+            store_data = requests.get(retrieve_store_endpoint_url.format(store_number = i), headers= key).json()
+            store_data = json_normalize(store_data)
+            df = pd.concat([df, store_data])
 
         return df
     
