@@ -5,6 +5,7 @@ import requests
 import boto3
 import sqlalchemy as text
 from pandas import json_normalize
+import yaml
 
 
 
@@ -69,11 +70,14 @@ class DataExtractor:
 
         #pd dataframe where data is going to be stored
         df = pd.DataFrame()
-        retrieve_store_endpoint_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
+        #get header details
+        with open('header_details.yaml') as f:
+            header_details = yaml.safe_load(f)
 
-        number_stores = self.list_number_of_stores(number_stores_url)
+        
+        number_stores = self.list_number_of_stores('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', header_details= header_details)
         for i in range(0,number_stores):
-            store_data = requests.get(retrieve_store_endpoint_url.format(store_number = i), headers= key).json()
+            store_data = requests.get(retrieve_store_url.format(store_number = i), headers= header_details).json()
             store_data = json_normalize(store_data)
             df = pd.concat([df, store_data])
 
