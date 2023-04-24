@@ -49,18 +49,16 @@ class DataExtractor:
         return dfs
     
 
-    def list_number_of_stores(self, number_of_stores_endpoint, header_details):
+    def list_number_of_stores(self, number_of_stores_endpoint=str, header_details=yaml):
 
-        ## header details haven't been used yet as get requests don't need the key??
-        
-        number_of_stores = requests.get(number_of_stores_endpoint, header_details)
+        number_of_stores = requests.get(number_of_stores_endpoint, header_details).json()
 
 
-        return number_of_stores.json()['number_stores']
+        return number_of_stores['number_stores']
     
 
     # extracting all stores from the API saving them in pandas dataframe
-    def retrieve_stores_data(self, retrieve_store_url):
+    def retrieve_stores_data(self, retrieve_store_url = str):
 
         #pd dataframe where data is going to be stored
         df = pd.DataFrame()
