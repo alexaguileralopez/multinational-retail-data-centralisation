@@ -51,10 +51,9 @@ class DataCleaning:
         card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', format= '%Y-%m-%d')
 
         card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
-        
-        card_data = card_data.dropna()
 
         card_data.dropna()
+        card_data.reset_index(drop= True, inplace= True)
 
         return card_data
     
@@ -63,8 +62,16 @@ class DataCleaning:
 
         store_data = data_extraction.DataExtractor().retrieve_stores_data("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}")
 
-        store_data.dropna(how = 'all')
-        store_data.drop_duplicates()
+        # transforming opening date column to datetime object
+        store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
+        # drop index column, as it will be useful when dropping rows with N/A
+        store_data = store_data.drop(columns= 'index')
+        
+        # cleaning dirty data
+        store_data.dropna()
+        store_data.drop_duplicates(subset= ['address', 'store_code'])
+        store_data['address'] = store_data['address'].replace('\n', ' ', regex= True)
+        store_data.reset_index(drop= True, inplace= True)
 
 
         return store_data

@@ -18,12 +18,6 @@ class DataExtractor:
     def __init__(self):
 
         self.DatabaseConnector = database_utils.DatabaseConnector()
-
-        #### note: I don't know where to place this dictionary
-        self.header_details = {
-             'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
-            }
-
         
         
     # method reads database from RDS
