@@ -270,4 +270,25 @@ for i in range(0,number_stores):
     df = pd.concat([df, store_data])
 
 
+# %% testing data extraction from s3
+# necessary to install s3fs
+import boto3
+import pandas as pd
+
+# create a client object (connection to S3) using default config and all buckets within S3
+client = boto3.client('s3')
+
+path = 's3://data-handling-public/products.csv'
+
+df = pd.read_csv(path)
+
+df.head()
+
+# %%
+import data_extraction
+
+df = data_extraction.DataExtractor().extract_from_s3()
+
+# replace k with kg
+
 # %%

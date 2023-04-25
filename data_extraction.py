@@ -76,13 +76,13 @@ class DataExtractor:
         return df
     
     # product info is stored in s3 bucket on AWS in CSV format
-    def extract_from_s3(self, product_adress):
+    def extract_from_s3(self):
 
-        # download and extract the info returning pandas dataframe
-        s3_client = boto3.client('s3')
-        
-        # reading prduct address, which should contain a csv file
-        df = pd.read_csv(product_adress)
+        client = boto3.client('s3')
+
+        path = 's3://data-handling-public/products.csv'
+
+        df = pd.read_csv(path)
 
 
         return df
