@@ -286,9 +286,33 @@ df.head()
 
 # %%
 import data_extraction
+import data_cleaning
+import pandas as pd
 
 df = data_extraction.DataExtractor().extract_from_s3()
 
-# replace k with kg
+df['weight'] = df['weight'].apply(lambda x : float(x[:-2]) if x.endswith('kg') 
+                                else float(x[:-1]) * 0.001 if x.endswith('g') 
+                                else float(x[:-2]) * 0.001 if x.endswith('ml')
+                                else float(x))
 
+
+
+# %%
+df = data_extraction.DataExtractor().extract_from_s3()
+
+df['weight'] = df['weight'].astype(str)
+
+
+for weight in df['weight']:
+    if weight.endswith('kg'):
+        weight = float(weight[:-2])
+    elif weight.endswith('ml'):
+        weight = float(weight[:-2])
+        weight = weight * 0.001
+    elif weight.endswith('g'):
+        weight = float(weight[:-1])
+        weight = weight * 0.001
+    else:
+        float(weight)
 # %%

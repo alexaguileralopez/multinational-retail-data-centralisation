@@ -76,9 +76,25 @@ class DataCleaning:
 
         return store_data
     
-    def convert_product_weights(self, products_df):
 
-        return products_df
+    def convert_product_weights(self, df):
+
+        df['weight'] = df['weight'].astype(str)
+
+
+        for weight in df['weight']:
+            if weight.endswith('kg'):
+                weight = float(weight[:-2])
+            elif weight.endswith('ml'):
+                weight = float(weight[:-2])
+                weight = weight * 0.001
+            elif weight.endswith('g'):
+                weight = float(weight[:-1])
+                weight = weight * 0.001
+            else:
+                float(weight)
+
+        return df
 
 
     
