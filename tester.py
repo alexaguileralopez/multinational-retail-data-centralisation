@@ -299,20 +299,32 @@ df['weight'] = df['weight'].apply(lambda x : float(x[:-2]) if x.endswith('kg')
 
 
 # %%
+
+import data_extraction
+
 df = data_extraction.DataExtractor().extract_from_s3()
 
-df['weight'] = df['weight'].astype(str)
+weights_col = df['weight'].values.astype(str)
 
+counter_wrong = 0
 
-for weight in df['weight']:
+for weight in weights_col:
     if weight.endswith('kg'):
-        weight = float(weight[:-2])
+        float(weight[:-2])
     elif weight.endswith('ml'):
-        weight = float(weight[:-2])
+        float(weight[:-2])
         weight = weight * 0.001
     elif weight.endswith('g'):
-        weight = float(weight[:-1])
-        weight = weight * 0.001
+        if 'x' in weight:
+            weight = weight[:-1]
+            weight = weight.replace('x', '*')
+            float(eval(weight)) * 0.001
+            
+        else: 
+            weight = float(weight[:-1])
+            weight = weight * 0.001
+    
     else:
-        float(weight)
+        counter_wrong = counter_wrong +1
+
 # %%
