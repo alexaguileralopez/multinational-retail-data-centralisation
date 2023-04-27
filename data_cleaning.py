@@ -61,7 +61,7 @@ class DataCleaning:
     # input the old dataframe as an argument here
     def clean_store_data(self):
 
-        store_data = data_extraction.DataExtractor().retrieve_stores_data("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}")
+        store_data = data_extraction.DataExtractor().retrieve_stores_data()
 
         # transforming opening date column to datetime object
         store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
@@ -80,27 +80,7 @@ class DataCleaning:
 
     def convert_product_weights(self, df):
 
-        df['weight'] = df['weight'].astype('str')
-
-
-        for weight in df['weight']:
-            if weight.endswith('kg'):
-                weight = float(weight[:-2])
-            elif weight.endswith('ml'):
-                weight = float(weight[:-2])
-                weight = weight * 0.001
-            elif weight.endswith('g'):
-                if 'x' in weight:
-                    weight = weight[:-1]
-                    weight = weight.replace('x', '*')
-                    weight = float(eval(weight)) * 0.001
-                    
-                else: 
-                    weight = float(weight[:-1])
-                    weight = weight * 0.001
-                
-            else:
-                weight = float(weight)
+        df['weight'] = df['weight'].astype('string')
 
         return df
 

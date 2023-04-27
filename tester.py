@@ -271,12 +271,11 @@ for i in range(0,number_stores):
 
 # %%
 import data_extraction
+import data_cleaning
+import database_utils
 
-number_stores = data_extraction.DataExtractor().list_number_of_stores()
-print(number_stores)
-
-store_data = data_extraction.DataExtractor().retrieve_stores_data()
-print(store_data.head())
+clean_store_data = data_cleaning.DataCleaning().clean_store_data()
+database_utils.DatabaseConnector().upload_to_db(dataframe = clean_store_data, table_name= 'dim_store_details')
 # %% testing data extraction from s3
 # necessary to install s3fs
 import boto3
@@ -333,5 +332,17 @@ for weight in weights_col:
     
     else:
         counter_wrong = counter_wrong +1
+
+# %%
+
+import data_extraction
+import data_cleaning
+import pandas as pd
+
+df_new = data_extraction.DataExtractor().extract_from_s3()
+df_new.dtypes
+
+df_new = data_cleaning.DataCleaning().convert_product_weights(df=df_new)
+df_new.dtypes
 
 # %%
