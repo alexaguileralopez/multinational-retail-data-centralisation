@@ -49,9 +49,9 @@ class DataExtractor:
         return dfs
     
 
-    def list_number_of_stores(self, url='https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'):
+    def list_number_of_stores(self, url='https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', header = 'header_details.yaml'):
 
-        with open('header_details.yaml') as f:
+        with open(header) as f:
             header= yaml.safe_load(f)
 
         response = requests.get(url, headers= header)
@@ -62,18 +62,17 @@ class DataExtractor:
     
 
     # extracting all stores from the API saving them in pandas dataframe
-    def retrieve_stores_data(self, retrieve_store_url = str):
+    def retrieve_stores_data(self, url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}', header = 'header_details.yaml'):
 
         #pd dataframe where data is going to be stored
         df = pd.DataFrame()
         #get header details
-        with open('header_details.yaml') as f:
-            header_details = yaml.safe_load(f)
+        with open(header) as f:
+            header = yaml.safe_load(f)
 
-        
-        number_stores = self.list_number_of_stores('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', header_details= header_details)
+        number_stores = self.list_number_of_stores()
         for i in range(0,number_stores):
-            store_data = requests.get(retrieve_store_url.format(store_number = i), headers= header_details).json()
+            store_data = requests.get(url.format(store_number = i), headers= header).json()
             store_data = json_normalize(store_data)
             df = pd.concat([df, store_data])
 

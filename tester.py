@@ -274,6 +274,9 @@ import data_extraction
 
 number_stores = data_extraction.DataExtractor().list_number_of_stores()
 print(number_stores)
+
+store_data = data_extraction.DataExtractor().retrieve_stores_data()
+print(store_data.head())
 # %% testing data extraction from s3
 # necessary to install s3fs
 import boto3
