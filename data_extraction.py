@@ -49,13 +49,16 @@ class DataExtractor:
         return dfs
     
 
-    def list_number_of_stores(self, url='https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', header_details = yaml):
+    def list_number_of_stores(self, url='https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'):
 
+        with open('header_details.yaml') as f:
+            header= yaml.safe_load(f)
 
-        number_of_stores = requests.get(url= 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores' , headers = header_details)
-
-
-        return number_of_stores
+        response = requests.get(url, headers= header)
+        if response.status_code == 200:
+            return response.json()['number_stores']
+        else:
+            return f'Error {response.status_code}'
     
 
     # extracting all stores from the API saving them in pandas dataframe

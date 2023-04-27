@@ -58,6 +58,7 @@ class DataCleaning:
         return card_data
     
     
+    # input the old dataframe as an argument here
     def clean_store_data(self):
 
         store_data = data_extraction.DataExtractor().retrieve_stores_data("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}")

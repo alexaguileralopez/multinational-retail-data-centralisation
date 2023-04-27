@@ -269,7 +269,11 @@ for i in range(0,number_stores):
     store_data = json_normalize(store_data)
     df = pd.concat([df, store_data])
 
+# %%
+import data_extraction
 
+number_stores = data_extraction.DataExtractor().list_number_of_stores()
+print(number_stores)
 # %% testing data extraction from s3
 # necessary to install s3fs
 import boto3
@@ -291,7 +295,7 @@ import pandas as pd
 
 df = data_extraction.DataExtractor().extract_from_s3()
 
-df['weight'] = df['weight'].apply(lambda x : float(x[:-2]) if x.endswith('kg') 
+df['weight'] = df['weight'].astype(str).apply(lambda x : float(x[:-2]) if x.endswith('kg') 
                                 else float(x[:-1]) * 0.001 if x.endswith('g') 
                                 else float(x[:-2]) * 0.001 if x.endswith('ml')
                                 else float(x))
