@@ -377,11 +377,30 @@ for weight in s:
 import pandas as pd
 import re
 
-s = pd.Series(['1.6kg', '100g', '10kg', '650g', '500ml', '16oz', '0g', '12 x 100g', '2 x 10kg'])
+s = pd.Series(['1.6kg', '100g', '10kg', '650g', '500ml', '16oz', '0g', '12 x 100g', '4 x 400g', '2 x 10kg', 'MX180RYSHX'])
 pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+)\s*(kg|g|ml|oz)?'
 conversion_dict = {'kg': 1, 'g': 0.001, 'ml': 0.001, 'oz': 0.0283495}
 
-s = s.apply(lambda x: float(re.search(pattern, x).group(1)) * float(re.search(pattern, x).group(2)) * conversion_dict.get(re.search(pattern, x).group(3), 0.001) if re.search(pattern, x) else None)
+s = s.apply(lambda x: float(re.search(pattern, x).group(1)) * float(re.search(pattern, x).group(2)) * conversion_dict.get(re.search(pattern, x).group(3), 0.001) if 'x' in x
+            else float(x[:-2]) if x.endswith('kg') 
+            else float(x[:-2])*0.001 if x.endswith('ml') 
+            else float(x[:-1])*0.001 if x.endswith('g')
+            else float(x[:-2])*0.0283495 if x.endswith('oz')
+            else None if pd.isna(x)
+            else None)
+s = s.round(2)
 
 print(s)
+# %% Trying the function developed above in the actual dataframe:
+import data_cleaning
+import data_extraction
+import database_utils
+import pandas as pd
+
+df = data_extraction.DataExtractor().extract_from_s3()
+
+missing = df['weight'][pd.isna(df['weight'])]
+print(missing)
+
+
 # %%

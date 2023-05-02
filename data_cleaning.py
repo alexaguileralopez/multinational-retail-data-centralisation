@@ -82,6 +82,7 @@ class DataCleaning:
     def convert_product_weights(self, df = data_extraction.DataExtractor().extract_from_s3()):
 
         df['weight'] = df['weight'].astype('string')
+        df['weight'] = df['weight'].fillna('NO VALUE')
 
         # checking the dataframe, we can see that the units that are used are the following:
         conversion_dict = {'kg': 1, 'g': 0.001, 'ml': 0.001, 'oz': 0.0283495}
@@ -94,13 +95,14 @@ class DataCleaning:
         # the first expression searchs for the mentioned pattern and 
         # replaces it multiplying the 2 'groups' of numbers
         # It also checks wether the units are correct and applies the conversion dictionary
-        df['weight'] = df['weight'].apply(lambda x: float(re.search(pattern, x).group(1)) * float(re.search(pattern, x).group(2)) * conversion_dict.get(re.search(pattern, x).group(3), 0.001) if 'x' in x
+        df['weight'] = df['weight'].apply(lambda x: float(re.search(pattern, x).group(1)) * float(re.search(pattern, x).group(2)) * conversion_dict.get(re.search(pattern, x).group(3), 0.001) if ' x ' in x and pd.notna(x)
            
            # the rest of the expressions look for the units with 'endswith' 
             else float(x[:-2]) if x.endswith('kg') 
             else float(x[:-2])*0.001 if x.endswith('ml') 
             else float(x[:-1])*0.001 if x.endswith('g')
             else float(x[:-2])*0.0283495 if x.endswith('oz')
+            else None if pd.isna(x)
             else None)
         
         # rounding the weight in kg to 2 decimals
