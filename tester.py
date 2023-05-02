@@ -333,16 +333,55 @@ for weight in weights_col:
     else:
         counter_wrong = counter_wrong +1
 
+# %% Trying functions to remove units from the weight column in the dataframe 'products'
+
+import pandas as pd
+import re # for the case where we have expressions such as 12 x 100g
+
+s = pd.Series(['1.6kg', '100g', '10kg', '650g', '500ml', '16oz', '0g', '12 x 100g', '2 x 10kg'])
+
+def weight_transform(x):
+
+    pattern = r'(\d+(?:\.\d+)?)(?:\s*x\s*)(\d+(?:\.\d+)?)*\s*(kg|g|ml|oz)'
+
+    match = re.match(pattern, x)
+
+    if match:
+        value1 = float(match.group(1))
+        value2 = float(match.group(2)) if match.group(2) else 1
+        unit = match.group(3)
+
+        weight = value1 * value2
+
+        if unit == 'g' or 'ml':
+            weight /= 1000
+        
+        elif unit == 'oz':
+            weight /= 35.27
+        
+        return weight
+    
+    elif 'kg' in x:
+        float(x)
+    
+
+for weight in s:
+    print(weight_transform(weight))
+
+
+
+    
+
 # %%
 
-import data_extraction
-import data_cleaning
 import pandas as pd
+import re
 
-df_new = data_extraction.DataExtractor().extract_from_s3()
-df_new.dtypes
+s = pd.Series(['1.6kg', '100g', '10kg', '650g', '500ml', '16oz', '0g', '12 x 100g', '2 x 10kg'])
+pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+)\s*(kg|g|ml|oz)?'
+conversion_dict = {'kg': 1, 'g': 0.001, 'ml': 0.001, 'oz': 0.0283495}
 
-df_new = data_cleaning.DataCleaning().convert_product_weights(df=df_new)
-df_new.dtypes
+s = s.apply(lambda x: float(re.search(pattern, x).group(1)) * float(re.search(pattern, x).group(2)) * conversion_dict.get(re.search(pattern, x).group(3), 0.001) if re.search(pattern, x) else None)
 
+print(s)
 # %%
