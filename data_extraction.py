@@ -1,5 +1,5 @@
 import pandas as pd
-import database_utils
+from database_utils import DatabaseConnector
 import tabula
 import requests
 import boto3
@@ -17,11 +17,11 @@ class DataExtractor:
 
     def __init__(self):
 
-        self.DatabaseConnector = database_utils.DatabaseConnector()
+        self.DatabaseConnector = DatabaseConnector()
         
         
     # method reads database from RDS
-    def read_rds_table(self, database_connector_instance = database_utils.DatabaseConnector(), table_name = str):
+    def read_rds_table(self, database_connector_instance = DatabaseConnector(), table_name = str):
         
         # get the name of the table containing user data
         

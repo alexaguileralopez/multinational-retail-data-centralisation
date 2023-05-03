@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np 
-import data_extraction
-import database_utils
+from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
 from datetime import datetime
 import re
 
@@ -13,7 +13,7 @@ class DataCleaning:
 
     def clean_user_data(self):
 
-        user_data = data_extraction.DataExtractor().read_rds_table(database_connector_instance= database_utils.DatabaseConnector(), 
+        user_data = DataExtractor().read_rds_table(database_connector_instance= DatabaseConnector(), 
                                                     table_name= 'legacy_users')
 
 
@@ -41,7 +41,7 @@ class DataCleaning:
     
 
 
-    def clean_card_data(self, card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")):
+    def clean_card_data(self, card_data = DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")):
         
         # first drop the values that contain NULL as a string  
         #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
@@ -57,7 +57,7 @@ class DataCleaning:
     
     
     # input the old dataframe as an argument here
-    def clean_store_data(self, store_data = data_extraction.DataExtractor().retrieve_stores_data() ):
+    def clean_store_data(self, store_data = DataExtractor().retrieve_stores_data() ):
 
         # transforming opening date column to datetime object
         store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
@@ -74,7 +74,7 @@ class DataCleaning:
         return store_data
     
 
-    def convert_product_weights(self, df = data_extraction.DataExtractor().extract_from_s3()):
+    def convert_product_weights(self, df ):
 
         df['weight'] = df['weight'].astype('string')
         df['weight'] = df['weight'].fillna('NO VALUE')
@@ -97,31 +97,47 @@ class DataCleaning:
             else float(x[:-2])*0.001 if x.endswith('ml') 
             else float(x[:-1])*0.001 if x.endswith('g')
             else float(x[:-2])*0.0283495 if x.endswith('oz')
-            else None if pd.isna(x)
-            else None)
+            #else np.NAN if pd.isna(x)
+            else np.NAN)  ## we use np.NAN because it is a float value and allows operations
         
         # rounding the weight in kg to 2 decimals
-        df['weight'] = df['weight'].round(2)
+        df['weight'] = df['weight'].apply(lambda x: round(x, 2) if pd.isna(x) == False else np.NAN)
 
 
 
         return df
     
-    def clean_products_data(self):
+    def clean_products_data(self, df= pd.DataFrame):
 
         # check for duplicates in EAN, uuid, and product_code columns
-        df = self.convert_product_weights()
+        #df = self.convert_product_weights()
 
-        df.drop_duplicates(subset= ['EAN', 'uuid', 'product_code'], keep = 'last').reset_index(drop = True)
+
+        df = df.drop_duplicates(subset= ['EAN', 'uuid', 'product_code'], keep = 'last').reset_index(drop= True)
+        
 
         #stablish a date format and apply it to columns containing dates
         date_format = "%Y-%m-%d"
-        df['date_added'] = pd.to_datetime(df['date_added'], format= date_format, errors= 'coerce')
+        df['date_added'] = pd.to_datetime(df['date_added'], errors= 'coerce', format= date_format)
 
-        df.dropna()
-        df.reset_index(drop= True, inplace= True)
+        # remove non existing values
+        df = df.dropna()
+
+                
 
         return df
+    
+    
+    def clean_orders_data(self, df = pd.DataFrame):
+        
+        df = df.drop(columns= ['first_name', 'last_name', '1'])
+        
+        
+        return df
+        
+        
+
+        
     
 
 

@@ -397,10 +397,17 @@ import data_extraction
 import database_utils
 import pandas as pd
 
-df = data_extraction.DataExtractor().extract_from_s3()
+df = data_cleaning.DataCleaning().clean_products_data()
 
-missing = df['weight'][pd.isna(df['weight'])]
-print(missing)
+
+# %% TASK 7:
+
+import data_cleaning
+import data_extraction
+import database_utils
+
+database_utils.DatabaseConnector().list_db_tables()
+
 
 
 # %%
