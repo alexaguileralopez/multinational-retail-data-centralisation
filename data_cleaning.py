@@ -132,6 +132,8 @@ class DataCleaning:
         
         df = df.drop(columns= ['first_name', 'last_name', '1'])
         
+        ## a change that could be implemented is to delete the columns level_0 and
+        ## index, as they have the same values and they work as indexes. 
         
         return df
         

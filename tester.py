@@ -402,12 +402,14 @@ df = data_cleaning.DataCleaning().clean_products_data()
 
 # %% TASK 7:
 
-import data_cleaning
-import data_extraction
-import database_utils
+from data_cleaning import DataCleaning
+from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
 
-database_utils.DatabaseConnector().list_db_tables()
-
+tester = DatabaseConnector()
+df1 = DataExtractor().read_rds_table(tester, 'orders_table')
+df = DataCleaning().clean_orders_data(df1)
+print(df)
 
 
 # %%
