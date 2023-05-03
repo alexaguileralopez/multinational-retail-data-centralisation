@@ -85,7 +85,7 @@ class DataExtractor:
 
         path = 's3://data-handling-public/products.csv'
 
-        df = pd.read_csv(path)
+        df = pd.read_csv(path, index_col= 0) #index col = 0 to get rid of an extra index column
 
 
         return df

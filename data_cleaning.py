@@ -41,10 +41,7 @@ class DataCleaning:
     
 
 
-    def clean_card_data(self):
-
-        #get data (it is a pd dataframe)
-        card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")
+    def clean_card_data(self, card_data = data_extraction.DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")):
         
         # first drop the values that contain NULL as a string  
         #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
@@ -60,9 +57,7 @@ class DataCleaning:
     
     
     # input the old dataframe as an argument here
-    def clean_store_data(self):
-
-        store_data = data_extraction.DataExtractor().retrieve_stores_data()
+    def clean_store_data(self, store_data = data_extraction.DataExtractor().retrieve_stores_data() ):
 
         # transforming opening date column to datetime object
         store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
@@ -111,6 +106,34 @@ class DataCleaning:
 
 
         return df
+    
+    def clean_products_data(self):
+
+        # check for duplicates in EAN, uuid, and product_code columns
+        df = self.convert_product_weights()
+
+        df.drop_duplicates(subset= ['EAN', 'uuid', 'product_code'], keep = 'last').reset_index(drop = True)
+
+        #stablish a date format and apply it to columns containing dates
+        date_format = "%Y-%m-%d"
+        df['date_added'] = pd.to_datetime(df['date_added'], format= date_format, errors= 'coerce')
+
+        df.dropna()
+        df.reset_index(drop= True, inplace= True)
+
+        return df
+    
+
+
+
+
+
+
+
+
+
+
+
 
 
     
