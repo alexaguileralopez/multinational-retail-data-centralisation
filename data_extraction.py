@@ -89,6 +89,16 @@ class DataExtractor:
 
 
         return df
+    
+    def extract_date_details(self, url ='https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'):
+        response = requests.get(url)
+        if response.status_code == 200:
+            df = pd.read_json(url)
+            return df
+        else:
+            return f'Error {response.status_code}'
+            
+
 
 
     

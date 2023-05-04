@@ -136,6 +136,34 @@ class DataCleaning:
         ## index, as they have the same values and they work as indexes. 
         
         return df
+    
+    def clean_date_data(self, df = pd.DataFrame):
+
+        #df = df.drop(columns= [None])
+        
+        # df just stores elements not containing string 'NULL' in the dataframe
+        # axis = 1 to apply to each row, NOT operator to invert result, 
+        # so that function returns TRUE for rows not containing the string 'NULL'
+        df = df[df.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
+        
+        date_format = "%H:%M:%S"
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors= 'coerce', format= date_format)
+        df = df.dropna() #to remove those that do not contain timestamp and were set as NAN
+
+        df.info() # 120146 entries, it has reduced
+        df = df.drop_duplicates(subset= ['date_uuid'], keep= 'last').reset_index(drop=True)
+        df['year'] = df['year'].astype('int')
+        df['day'] = df['day'].astype('int')
+        df['time_period'] = df['time_period'].astype('str')
+        df['month'] = df['month'].astype('str')
+        df['date_uuid'] = df['date_uuid'].astype('str') # memory usage is reduced by 1 MB
+        df = df.dropna() 
+
+        print('After looking for NULL strings:\n')
+        df.info() # 120123 entries, it has reduced
+
+        return df
+    
         
         
 

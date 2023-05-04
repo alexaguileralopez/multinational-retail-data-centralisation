@@ -412,4 +412,58 @@ df = DataCleaning().clean_orders_data(df1)
 print(df)
 
 
+# %% TASK 8 
+from data_extraction import DataExtractor
+import boto3
+import numpy as np
+from awscli.customizations.s3.utils import split_s3_bucket_key
+import json
+import pandas as pd
+import requests
+
+url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+
+response = requests.get(url)
+if response.status_code == 200:
+    df = pd.read_json(url)
+else:
+    print( f'Error {response.status_code}')
+
+#nulls = df.isna().sum()
+#print('Number of nulls: \n', nulls) # displays 0 nulls, and there are many rows in the df with 'NULL' as element
+
+# count rows to check wether the next steps will work
+
+df.info() # 120161 entries
+
+# axis = 1 to apply to each row, NOT operator to invert result, 
+# so that function returns TRUE for rows not containing the string 'NULL'
+df = df[df.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
+df.info() # 120146 entries, it has reduced
+
+date_format = "%H:%M:%S"
+df['timestamp'] = pd.to_datetime(df['timestamp'], errors= 'coerce', format= date_format)
+df = df.dropna() #to remove those that do not contain timestamp and were set as NAN
+df.info() # 120146 entries, it has reduced
+df = df.drop_duplicates(subset= ['date_uuid'], keep= 'last').reset_index(drop=True)
+df['year'] = df['year'].astype('int')
+df['day'] = df['day'].astype('int')
+df['time_period'] = df['time_period'].astype('str')
+df['month'] = df['month'].astype('str')
+df['date_uuid'] = df['date_uuid'].astype('str') # memory usage is reduced by 1 MB
+df = df.dropna() 
+
+print('After looking for NULL strings:\n')
+df.info() # 120123 entries, it has reduced
+
+# %%RUNNING CODE FROM TASK 8 STEP BY STEP
+from data_cleaning import DataCleaning
+from data_extraction import DataExtractor
+
+df1 = DataExtractor().extract_date_details()
+df = DataCleaning().clean_date_data(df1)
+
+df.info()
+
+print(df.head())
 # %%
