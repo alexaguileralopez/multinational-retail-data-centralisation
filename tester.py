@@ -417,9 +417,12 @@ from data_extraction import DataExtractor
 import boto3
 import numpy as np
 from awscli.customizations.s3.utils import split_s3_bucket_key
-import json
+import numpy as np
 import pandas as pd
 import requests
+from datetime import datetime, time
+import json
+import re
 
 url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
 
@@ -441,8 +444,14 @@ df.info() # 120161 entries
 df = df[df.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
 df.info() # 120146 entries, it has reduced
 
-date_format = "%H:%M:%S"
-df['timestamp'] = pd.to_datetime(df['timestamp'], errors= 'coerce', format= date_format)
+# date_format = "%H:%M:%S"
+# df['timestamp'] = pd.to_datetime(df['timestamp'], errors= 'coerce', format= date_format)
+
+# the following function transforms the timestamp to time object, and sets nan to those values that do not match the format
+df['timestamp'] = df['timestamp'].apply(lambda x: datetime.strptime(x, '%H:%M:%S').time() 
+                                        if isinstance(x, str) and re.match(r'\d{2}:\d{2}:\d{2}', x) 
+                                        # using regular expressions to match 2 digits followed by colon
+                                        else np.nan)
 df = df.dropna() #to remove those that do not contain timestamp and were set as NAN
 df.info() # 120146 entries, it has reduced
 df = df.drop_duplicates(subset= ['date_uuid'], keep= 'last').reset_index(drop=True)
@@ -459,11 +468,15 @@ df.info() # 120123 entries, it has reduced
 # %%RUNNING CODE FROM TASK 8 STEP BY STEP
 from data_cleaning import DataCleaning
 from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
 
 df1 = DataExtractor().extract_date_details()
 df = DataCleaning().clean_date_data(df1)
 
 df.info()
 
-print(df.head())
+DatabaseConnector().upload_to_db(dataframe= df, table_name= 'dim_date_times')
+
+
+
 # %%

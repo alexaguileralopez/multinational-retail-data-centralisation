@@ -146,8 +146,11 @@ class DataCleaning:
         # so that function returns TRUE for rows not containing the string 'NULL'
         df = df[df.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
         
-        date_format = "%H:%M:%S"
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors= 'coerce', format= date_format)
+        # the following function transforms the timestamp to time object, and sets nan to those values that do not match the format
+        df['timestamp'] = df['timestamp'].apply(lambda x: datetime.strptime(x, '%H:%M:%S').time() 
+                                        if isinstance(x, str) and re.match(r'\d{2}:\d{2}:\d{2}', x) 
+                                        # using regular expressions to match 2 digits followed by colon
+                                        else np.nan)
         df = df.dropna() #to remove those that do not contain timestamp and were set as NAN
 
         df.info() # 120146 entries, it has reduced
