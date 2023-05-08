@@ -269,6 +269,15 @@ for i in range(0,number_stores):
     store_data = json_normalize(store_data)
     df = pd.concat([df, store_data])
 
+
+# %%
+
+from data_extraction import DataExtractor
+
+df = DataExtractor().retrieve_stores_data()
+
+
+
 # %%
 import data_extraction
 import data_cleaning
@@ -479,4 +488,3 @@ DatabaseConnector().upload_to_db(dataframe= df, table_name= 'dim_date_times')
 
 
 
-# %%

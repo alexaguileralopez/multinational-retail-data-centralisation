@@ -46,7 +46,8 @@ class DataCleaning:
         # first drop the values that contain NULL as a string  
         #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
 
-        card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', format= '%Y-%m-%d')
+        
+        card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', infer_datetime_format= True, format= '%Y-%m-%d')
 
         card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
 
@@ -59,13 +60,46 @@ class DataCleaning:
     # input the old dataframe as an argument here
     def clean_store_data(self, store_data = DataExtractor().retrieve_stores_data() ):
 
+        # as the opening date data is in different formats
+        # the solution is to accept all of them and then transform all to the same format
+        formats = ['%d %b %Y', '%Y %b %d','%Y %B %d','%Y-%m-%d', '%B %Y %d' ] # the formats the data is in
+        def convert_date(date_str):
+            for fmt in formats:
+                try: 
+                    date_obj = pd.to_datetime(date_str, format= fmt)
+                    if not pd.isna(date_obj):
+                        return date_obj
+                except:
+                    pass
+            return pd.NaT
+        
+        store_data['opening_date'] = store_data['opening_date'].apply(convert_date)
+
+        store_data = store_data[~store_data['opening_date'].isna()]
+
+        store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d')
+
+        
+
+
+
+        #store_data['opening_date'] = store_data['opening_date'].apply(lambda x: pd.to_datetime(x, errors= 'coerce', 
+         #                            format= [f for f in formats if not pd.isna(pd.to_datetime(x, format=f, errors='coerce'))][0]))
+        
+        store_data.dropna(subset=['opening_date'], inplace= True)
+
+        #store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d') #converts to desired format YYYY-mm-dd
+        
         # transforming opening date column to datetime object
-        store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
+        #store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
         # drop index column, as it will be useful when dropping rows with N/A
         store_data = store_data.drop(columns= 'index')
         
         # cleaning dirty data
-        store_data.dropna()
+
+        #dropping those rows that contain invalid values for number of staff members
+        store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors= 'coerce')
+        store_data.dropna(subset=['staff_numbers'], inplace= True) #inplace True ensures the original df is modified
         store_data.drop_duplicates(subset= ['address', 'store_code'])
         store_data['address'] = store_data['address'].replace('\n', ' ', regex= True)
         store_data.reset_index(drop= True, inplace= True)
