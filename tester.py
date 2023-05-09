@@ -498,3 +498,4 @@ from database_utils import DatabaseConnector
 card_data = DataCleaning().clean_card_data()
 
 DatabaseConnector().upload_to_db(dataframe= card_data, table_name= 'dim_card_details')
+# %%
