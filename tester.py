@@ -401,12 +401,13 @@ s = s.round(2)
 
 print(s)
 # %% Trying the function developed above in the actual dataframe:
-import data_cleaning
-import data_extraction
-import database_utils
-import pandas as pd
+from data_cleaning import DataCleaning
+from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
 
-df = data_cleaning.DataCleaning().clean_products_data()
+df1 = DataCleaning().convert_product_weights(df = DataExtractor().extract_from_s3())
+df = DataCleaning().clean_products_data(df=df1)
+DatabaseConnector().upload_to_db(dataframe= df, table_name= 'dim_products')
 
 
 # %% TASK 7:
@@ -488,3 +489,12 @@ DatabaseConnector().upload_to_db(dataframe= df, table_name= 'dim_date_times')
 
 
 
+# %% RE-UPLOADING CARD DATA WITH NEW CLEANING METHOD
+from data_cleaning import DataCleaning
+from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
+
+
+card_data = DataCleaning().clean_card_data()
+
+DatabaseConnector().upload_to_db(dataframe= card_data, table_name= 'dim_card_details')

@@ -46,12 +46,39 @@ class DataCleaning:
         # first drop the values that contain NULL as a string  
         #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
 
+        # card data to store values that do not contain the string 'NULL'
+        card_data = card_data[card_data.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
+
+        formats = ['%d %b %Y', '%Y %b %d','%Y %B %d','%Y-%m-%d', '%B %Y %d', '%m/%y' ] # the formats the data is in
+        def convert_date(date_str):
+            for fmt in formats:
+                try: 
+                    date_obj = pd.to_datetime(date_str, format= fmt)
+                    if not pd.isna(date_obj):
+                        return date_obj
+                except:
+                    pass
+            return pd.NaT
         
-        card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', infer_datetime_format= True, format= '%Y-%m-%d')
+        #store_data['opening_date'] = store_data['opening_date'].apply(convert_date)
+        card_data['expiry_date'] = card_data['expiry_date'].apply(convert_date)
+        card_data['date_payment_confirmed'] = card_data['date_payment_confirmed'].apply(convert_date)
+        
 
-        card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
+       
+        ######card_data = card_data[~card_data['expiry_date'].isna()]
+        ######card_data = card_data[~card_data['date_payment_confirmed'].isna()]
 
-        card_data.dropna()
+        #store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d')
+        card_data['expiry_date'] = card_data['expiry_date'].dt.strftime('%Y-%m-%d')
+        card_data['date_payment_confirmed'] = card_data['date_payment_confirmed'].dt.strftime('%Y-%m-%d')
+
+        
+        #card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', infer_datetime_format= True, format= '%Y-%m-%d')
+
+        #card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
+
+        #card_data.dropna()
         card_data.reset_index(drop= True, inplace= True)
 
         return card_data
@@ -80,18 +107,9 @@ class DataCleaning:
         store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d')
 
         
-
-
-
-        #store_data['opening_date'] = store_data['opening_date'].apply(lambda x: pd.to_datetime(x, errors= 'coerce', 
-         #                            format= [f for f in formats if not pd.isna(pd.to_datetime(x, format=f, errors='coerce'))][0]))
-        
         store_data.dropna(subset=['opening_date'], inplace= True)
 
-        #store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d') #converts to desired format YYYY-mm-dd
-        
-        # transforming opening date column to datetime object
-        #store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors= 'coerce', format= '%Y-%m-%d')
+
         # drop index column, as it will be useful when dropping rows with N/A
         store_data = store_data.drop(columns= 'index')
         
@@ -134,8 +152,8 @@ class DataCleaning:
             #else np.NAN if pd.isna(x)
             else np.NAN)  ## we use np.NAN because it is a float value and allows operations
         
-        # rounding the weight in kg to 2 decimals
-        df['weight'] = df['weight'].apply(lambda x: round(x, 2) if pd.isna(x) == False else np.NAN)
+        # rounding the weight in kg to 4 decimals (some products weight around 0.001kg)
+        df['weight'] = df['weight'].apply(lambda x: round(x, 4) if pd.isna(x) == False else np.NAN)
 
 
 
@@ -143,17 +161,27 @@ class DataCleaning:
     
     def clean_products_data(self, df= pd.DataFrame):
 
-        # check for duplicates in EAN, uuid, and product_code columns
-        #df = self.convert_product_weights()
 
-
-        df = df.drop_duplicates(subset= ['EAN', 'uuid', 'product_code'], keep = 'last').reset_index(drop= True)
+        formats = ['%d %b %Y', '%Y %b %d','%Y %B %d','%Y-%m-%d', '%B %Y %d'] # the formats the data is in
+        def convert_date(date_str):
+            for fmt in formats:
+                try: 
+                    date_obj = pd.to_datetime(date_str, format= fmt)
+                    if not pd.isna(date_obj):
+                        return date_obj
+                except:
+                    pass
+            return pd.NaT
         
+        df['date_added'] = df['date_added'].apply(convert_date)
+        
+        df = df[~df['date_added'].isna()] # drop NA
+        
+        df['date_added'] = df['date_added'].dt.strftime('%Y-%m-%d')       
 
-        #stablish a date format and apply it to columns containing dates
-        date_format = "%Y-%m-%d"
-        df['date_added'] = pd.to_datetime(df['date_added'], errors= 'coerce', format= date_format)
-
+        df = df.drop_duplicates(subset= ['EAN', 'uuid', 'product_code'], keep = 'last')
+        df = df.reset_index(drop= True)
+        
         # remove non existing values
         df = df.dropna()
 
