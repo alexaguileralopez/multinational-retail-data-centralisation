@@ -192,3 +192,52 @@ ALTER COLUMN card_number TYPE AS VARCHAR(22);
 
 ## TASK 8:
 
+In this task, the primary keys were added to each of the tables prefixed with dim. There is one of the headers in the orders_table that exists in one  dim-prefixed table. To update the columns in the dim tables with a primary key that matches the same column in the order table, the following was done:
+
+ALTER TABLE dim_card_details ADD PRIMARY KEY (card_number);
+ALTER TABLE dim_date_times ADD PRIMARY KEY(date_uuid);
+ALTER TABLE dim_products ADD PRIMARY KEY(product_code);
+ALTER TABLE dim_store_details ADD PRIMARY KEY(store_code);
+ALTER TABLE dim_users ADD PRIMARY KEY(user_uuid);
+
+## TASK 9:
+
+In this task, the foreign keys in the orders_table were created to reference the primary keys in other tables. The foreign key constraints were created to reference the primary keys of the other table.
+
+These foreign key constraints stablish a relationship between a column in the child column (dim tables) and a column in the parent table (orders_table or truth table). This will ensure that the values in the foreign key column of the child table always correspond to existing values in the primary key column of the parent table, or to a null value in the foreign key.
+
+ALTER TABLE orders_table
+ADD CONSTRAINT orders_table_date_uuid_fk
+FOREIGN KEY (date_uuid)
+REFERENCES dim_date_times (date_uuid);
+
+ALTER TABLE orders_table
+ADD CONSTRAINT orders_table_user_uuid_fk
+FOREIGN KEY (user_uuid)
+REFERENCES dim_users (user_uuid);
+
+ALTER TABLE orders_table
+ADD CONSTRAINT orders_table_card_number_fk
+FOREIGN KEY (card_number)
+REFERENCES dim_card_details (card_number);
+
+In this last query, an error was found:
+ERROR:  insert or update on table "orders_table" violates foreign key constraint "orders_table_card_number_fk"
+DETAIL:  Key (card_number)=(4971858637664481) is not present in table "dim_card_details".
+
+To solve it, the card_details original pdf with all the data was checked, and there were some values with '?' in the card number, which were eliminated using the following query:
+
+UPDATE dim_card_details SET card_number = REPLACE(price_column, '?', '')
+
+
+ALTER TABLE orders_table 
+ADD CONSTRAINT orders_table_store_code_fk
+FOREIGN KEY (store_code)
+REFERENCES dim_store_details (store_code);
+
+ALTER TABLE orders_table
+ADD CONSTRAINT orders_table_product_code_fk
+FOREIGN KEY (product_code)
+REFERENCES dim_products (product_code);
+
+
