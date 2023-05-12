@@ -116,7 +116,12 @@ class DataCleaning:
         # cleaning dirty data
 
         #dropping those rows that contain invalid values for number of staff members
-        store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors= 'coerce')
+        #store_data['staff_numbers'] = store_data['staff_numbers'].str.replace('n', '', regex=False)
+        #store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors= 'coerce')
+        store_data['staff_numbers'] = store_data['staff_numbers'].str.extract('(\d+)', expand=False) 
+        # (\d+) extracts one or more digits and thus characters are removed
+        store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors='coerce')
+
         store_data.dropna(subset=['staff_numbers'], inplace= True) #inplace True ensures the original df is modified
         store_data.drop_duplicates(subset= ['address', 'store_code'])
         store_data['address'] = store_data['address'].replace('\n', ' ', regex= True)

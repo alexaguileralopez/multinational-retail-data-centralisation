@@ -211,6 +211,14 @@ To check first if the keys could be created, the SQL JOIN clause was used to com
   JOIN table2 ON table1.column1 = table2.column2
   WHERE table1.column1 = table2.column2;
 
+  SELECT *
+  FROM table1
+  JOIN table2 ON table1.column1 = table2.column2
+  WHERE table2.column2 NOT IN (
+    SELECT DISTINCT column1
+    FROM table1
+  );
+
 
 These foreign key constraints stablish a relationship between a column in the child column (dim tables) and a column in the parent table (orders_table or truth table). This will ensure that the values in the foreign key column of the child table always correspond to existing values in the primary key column of the parent table, or to a null value in the foreign key.
 
