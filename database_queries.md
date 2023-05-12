@@ -54,14 +54,28 @@ The changes to implement here were the following:
 
 The queries were exactly the same as before, but date_of_birth and join_date were different:
 
-ALTER TABLE dim_user_table
+ALTER TABLE dim_users
 ALTER COLUMN date_of_birth TYPE DATE
 USING date_of_birth::date;
 
-For the country_code, the query mentioned in task 1 that selcts the length of the largest element returned a length of 2, which was implemented to the column:
+ALTER TABLE dim_users
+ALTER COLUMN country_code TYPE VARCHAR(3);
 
-ALTER TABLE dim_user_table
-ALTER COLUMN country_code TYPE VARCHAR(2);
+
+ALTER TABLE dim_users
+ALTER COLUMN first_name TYPE VARCHAR(255);
+
+ALTER TABLE dim_users
+ALTER COLUMN last_name TYPE VARCHAR(255);
+
+ALTER TABLE dim_users
+ALTER COLUMN join_date TYPE DATE
+USING join_date::date;
+
+For the country_code, the query mentioned in task 1 that selcts the length of the largest element returned a length of 3, which was implemented to the column:
+
+ALTER TABLE dim_users
+ALTER COLUMN country_code TYPE VARCHAR(3);
 
 ## TASK 3:
 
@@ -258,5 +272,87 @@ To solve it, the card_details original pdf with all the data was checked, and th
   ADD CONSTRAINT orders_table_product_code_fk
   FOREIGN KEY (product_code)
   REFERENCES dim_products (product_code);
+
+
+## MILESTONE 4: QUERYING THE DATA
+
+### TASK 1:
+The Operations team would like to know which countries we currently operate in and which country now has the most stores. Perform a query on the database to get the information.
+
+  SELECT country_code, COUNT(*) AS to_number_stores
+  FROM dim_store_details
+  GROUP BY country_code
+  ORDER BY to_number_stores DESC;
+
+This returns the following:
+
+| country | total_no_stores |
+|---------|----------------|
+| GB      | 266            |
+| DE      | 141            |
+| US      | 34             |
+
+
+### TASK 2:
+
+The business stakeholders would like to know which locations currently have the most stores. They would like to close some stores before opening more in other locations. Find out which locations have the most stores currently. 
+
+  SELECT locality, COUNT(*) AS total_number_stores
+  FROM dim_store_details
+  GROUP BY locality
+  ORDER BY total_number_stores DESC
+  LIMIT 7;
+
+With a limit of 7, the result is:
+
+| locality       | total_no_stores |
+|----------------|----------------|
+| Chapletown     | 14             |
+| Belper         | 13             |
+| Bushley        | 12             |
+| Exeter         | 11             |
+| High Wycombe   | 10             |
+| Arbroath       | 10             |
+| Rutherglen     | 10             |
+
+
+## TASK 3:
+
+Query the database to find out which months typically have the most sales.
+
+First, selecting the months column and a total_sales column:
+
+  SELECT dim_date_times.month, SUM(dim_products.product_price * orders_table.product_quantity) AS total_sales
+
+Then,
+
+  FROM orders_table
+  JOIN dim_date_times ON orders_table.date_uuid = dim_date_times.date_uuid
+  JOIN dim_products ON orders_table.product_code = dim_products.product_code
+  GROUP BY dim_date_times.month
+  ORDER BY total_sales DESC;
+
+August is the month with the most sales, followed by January and October. The last month is February, followed by April and November.
+
+| month | total_sales        |
+|-------|--------------------|
+| 8     | 673295.6799999983  |
+| 1     | 668041.4499999986  |
+| 10    | 657335.8399999985  |
+| 5     | 650321.4299999985  |
+| 7     | 645741.699999999   |
+| 3     | 645462.9999999991  |
+| 6     | 635578.9899999985  |
+| 12    | 635329.0899999985  |
+| 9     | 633993.6199999992  |
+| 11    | 630757.0799999996  |
+| 4     | 630022.7699999996  |
+| 2     | 616452.9899999991  |
+
+
+## TASK 4:
+
+
+
 
 
