@@ -136,7 +136,14 @@ class DataCleaning:
 
         # In some cases, the data is stored in the form '12 x 100g', 
         # and we will use regular expressions to find that pattern
+        
         pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+)\s*(kg|g|ml|oz)?'
+        #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz|\s)?\.?'
+        #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz)?(?:\s|\.)?'
+        #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz|\s)?\.?\s*$'
+        
+
+        
         
         # using lambda fxns to change the units
         # the first expression searchs for the mentioned pattern and 
@@ -147,8 +154,12 @@ class DataCleaning:
            # the rest of the expressions look for the units with 'endswith' 
             else float(x[:-2]) if x.endswith('kg') 
             else float(x[:-2])*0.001 if x.endswith('ml') 
-            else float(x[:-1])*0.001 if x.endswith('g')
+            else float(x[:-1])*0.001 if x.endswith('g') 
             else float(x[:-2])*0.0283495 if x.endswith('oz')
+            else float(x[:-3]) * 0.001 if x.endswith('.') # '77g .'
+            #else float(x[:-2])*0.001 if x.endswith('g .')
+            #else float(x[:-2] + x[-1]) * 0.001 if re.match(r'\d+[a-z]+\s\.$', x) # there is one value with '77g .'
+            else np.nan if pd.notna(x)
             #else np.NAN if pd.isna(x)
             else np.NAN)  ## we use np.NAN because it is a float value and allows operations
         
