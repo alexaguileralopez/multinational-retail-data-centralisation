@@ -13,8 +13,7 @@ class DataCleaning:
 
     def clean_user_data(self):
 
-        user_data = DataExtractor().read_rds_table(database_connector_instance= DatabaseConnector(), 
-                                                    table_name= 'legacy_users')
+        user_data = DataExtractor().read_rds_table(table_name= 'legacy_users')
 
 
         # select which columns have to have unique values, and drop the duplicates
@@ -28,9 +27,36 @@ class DataCleaning:
         clean_user_data['address'] = clean_user_data['address'].replace('\n', ' ', regex= True)
 
         #stablish a date format and apply it to the 2 columns containing dates
-        date_format = "%Y-%m-%d"
-        clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format, errors= 'coerce')
-        clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format, errors='coerce')
+
+        formats = ['%d %b %Y', '%Y %b %d','%Y %B %d','%Y-%m-%d', '%B %Y %d' ] # the formats the data is in
+        def convert_date(date_str):
+            for fmt in formats:
+                try: 
+                    date_obj = pd.to_datetime(date_str, format= fmt)
+                    if not pd.isna(date_obj):
+                        return date_obj
+                except:
+                    pass
+            return pd.NaT
+        
+        
+        clean_user_data['date_of_birth'] = clean_user_data['date_of_birth'].apply(convert_date)
+        clean_user_data['join_date'] = clean_user_data['date_of_birth'].apply(convert_date)
+
+        clean_user_data = clean_user_data[~clean_user_data['date_of_birth'].isna()]
+        clean_user_data = clean_user_data[~clean_user_data['join_date'].isna()]
+
+        clean_user_data['date_of_birth'] = clean_user_data['date_of_birth'].dt.strftime('%Y-%m-%d')
+        clean_user_data['join_date'] = clean_user_data['join_date'].dt.strftime('%Y-%m-%d')
+
+        clean_user_data.dropna(subset=['date_of_birth'], inplace= True)
+        clean_user_data.dropna(subset=['join_date'], inplace= True)
+
+        
+        
+        #date_format = "%Y-%m-%d"
+        #clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format, errors= 'coerce')
+        #clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format, errors='coerce')
 
         #last step is to drop null values, and to reset the index, as 
         # less values will appear now that some will be dropped

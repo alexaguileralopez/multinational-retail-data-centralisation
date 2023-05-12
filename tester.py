@@ -92,15 +92,15 @@ dfs.info()
 
 # %% To upload tables to local database
 
-import data_cleaning
-import data_extraction
-import database_utils
+from data_cleaning import DataCleaning
+from data_extraction import DataExtractor
+from database_utils import DatabaseConnector
 
-user_data = data_cleaning.DataCleaning().clean_user_data()
-card_data = data_cleaning.DataCleaning().clean_card_data()
+user_data = DataCleaning().clean_user_data()
+#card_data = data_cleaning.DataCleaning().clean_card_data()
 
-database_utils.DatabaseConnector().upload_to_db(user_data, 'dim_users')
-database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
+DatabaseConnector().upload_to_db(dataframe= user_data, table_name= 'dim_users')
+#database_utils.DatabaseConnector().upload_to_db(card_data, 'dim_card_details')
 
 ## need to fix the error in upload to db in order to being able to connect and upload the dataframe
 

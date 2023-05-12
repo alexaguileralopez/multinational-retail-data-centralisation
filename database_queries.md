@@ -55,7 +55,8 @@ The changes to implement here were the following:
 The queries were exactly the same as before, but date_of_birth and join_date were different:
 
 ALTER TABLE dim_user_table
-ALTER COLUMN date_of_birth TYPE DATE;
+ALTER COLUMN date_of_birth TYPE DATE
+USING date_of_birth::date;
 
 For the country_code, the query mentioned in task 1 that selcts the length of the largest element returned a length of 2, which was implemented to the column:
 
@@ -80,7 +81,7 @@ The changes to implement here were the following:
 
 This time, there were 2 latitude columns, one of which had to be dropped using:
 
-ALTER TABLE store_details_table
+ALTER TABLE dim_store_details
 DROP COLUMN lat;
 
 Also, there was a row that represented the business's website change the location column values where they're null to N/A. To do so, the longitude value [null] was used as a reference using the WHERE clause:
@@ -212,12 +213,14 @@ To check first if the keys could be created, the SQL JOIN clause was used to com
   WHERE table1.column1 = table2.column2;
 
   SELECT *
-  FROM table1
-  JOIN table2 ON table1.column1 = table2.column2
-  WHERE table2.column2 NOT IN (
-    SELECT DISTINCT column1
-    FROM table1
+  FROM orders_table
+  JOIN dim_users ON orders_table.user_uuid = dim_users.user_uuid
+  WHERE dim_users.user_uuid NOT IN (
+    SELECT DISTINCT user_uuid
+    FROM orders_table
   );
+
+  If this query returns no rows, that means the column from orders_table contains the user_uuid column from dim_users (or any column given). 
 
 
 These foreign key constraints stablish a relationship between a column in the child column (dim tables) and a column in the parent table (orders_table or truth table). This will ensure that the values in the foreign key column of the child table always correspond to existing values in the primary key column of the parent table, or to a null value in the foreign key.
