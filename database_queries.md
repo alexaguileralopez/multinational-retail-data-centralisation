@@ -377,4 +377,48 @@ The company is looking to increase its online sales. They want to know how many 
 
 ![Result table](task_4.png)
 
+The 'SELECT' clause specifies that the columns that will be shown are 'location', distinguishing between online and offline, total_sales as a count of each time that sales are online or offline, and number of sales, as the sum of product quantity in online or offline sales. 
 
+The 'INNER JOIN' connects the tables dim_store_details and orders_table by 'store_code', and 'GROUP BY' groups the result set by the 'location' column. Hence, the functions COUNT and SUM operate on distinct sales types separately. 
+
+
+## TASK 5:
+
+The sales team wants to know which of the different store types is generated the most revenue so they know where to focus. Find out the total and percentage of sales coming from each of the different store types.
+
+  SELECT 
+    dim_store_details.store_type,
+    COUNT(*) AS total_sales,
+    ROUND(COUNT(*) * 100.0/SUM(COUNT(*)) OVER (),2) AS percentage_total
+    
+  FROM 
+    orders_table 
+    INNER JOIN dim_store_details ON orders_table.store_code = dim_store_details.store_code
+  GROUP BY
+    dim_store_details.store_type
+  ORDER BY percentage_total DESC;
+
+The query returns:
+
+![Result table 5](task_5.png)
+
+ 'COUNT(*) * 100.0 / SUM(COUNT(*)) OVER ()' calculates the ratio of the count of rows for each sales type to the total count of all rows in the result set.
+
+ ## TASK 6:
+
+The company stakeholders want assurances that the company has been doing well recently. Find which months in which years have had the most sales historically.
+
+  SELECT year, month, ROUND(sales_amount::numeric, 2) AS total_sales
+  FROM (
+      SELECT dim_date_times.year, dim_date_times.month, SUM(orders_table.product_quantity * dim_products.product_price) AS sales_amount,
+            ROW_NUMBER() OVER (PARTITION BY dim_date_times.year ORDER BY SUM(orders_table.product_quantity * dim_products.product_price) DESC) AS rn
+      FROM dim_date_times 
+      JOIN orders_table  ON orders_table.date_uuid = dim_date_times.date_uuid
+      JOIN dim_products ON dim_products.product_code = orders_table.product_code
+      GROUP BY dim_date_times.year, dim_date_times.month
+  ) subquery
+  WHERE rn = 1
+  ORDER BY total_sales DESC
+  LIMIT 10;
+
+  
