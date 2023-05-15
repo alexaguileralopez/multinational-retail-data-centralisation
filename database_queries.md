@@ -276,6 +276,11 @@ To solve it, the card_details original pdf with all the data was checked, and th
 
 ## MILESTONE 4: QUERYING THE DATA
 
+Following the last milestone, the resulting database schema is:
+
+![Database Star Schema](database_schema.png)
+
+
 ### TASK 1:
 The Operations team would like to know which countries we currently operate in and which country now has the most stores. Perform a query on the database to get the information.
 
@@ -352,7 +357,24 @@ August is the month with the most sales, followed by January and October. The la
 
 ## TASK 4:
 
+The company is looking to increase its online sales. They want to know how many sales are happening online vs offline. Calculate how many products were sold and the amount of sales made for online and offline purchases.
 
 
+  SELECT
+    CASE
+      WHEN dim_store_details.store_type = 'Web Portal' THEN 'ONLINE'
+      ELSE 'OFFLINE'
+    END AS location,
+    COUNT(*) AS total_sales,
+    SUM(orders_table.product_quantity) AS number_sales
+    
+  FROM 
+    orders_table 
+    INNER JOIN dim_store_details ON orders_table.store_code = dim_store_details.store_code
+  GROUP BY
+    location;
+
+
+![Result table](task_4.png)
 
 
