@@ -408,6 +408,10 @@ The query returns:
 
 The company stakeholders want assurances that the company has been doing well recently. Find which months in which years have had the most sales historically.
 
+By selecting information from orders_table, dim_products, and dim_date_times, it is possible to retrieve the necessary information to find the best sales month for each year. 
+
+
+
   SELECT year, month, ROUND(sales_amount::numeric, 2) AS total_sales
   FROM (
       SELECT dim_date_times.year, dim_date_times.month, SUM(orders_table.product_quantity * dim_products.product_price) AS sales_amount,
@@ -421,4 +425,96 @@ The company stakeholders want assurances that the company has been doing well re
   ORDER BY total_sales DESC
   LIMIT 10;
 
-  
+![Task 6 Result](task_6.png)
+
+Here, a subquery is needed to get the sales amount by year and month.
+Multiplying the quantity of products sold ('orders_table.product_quantity') with their respective prices ('dim_products.product_price) gives the sales amount per order. Grouping the sales by year and month gives the total sales amount for each month in each year. 
+
+Using ROW_NUMBER(), each month within a year is given a row, being the one with the highest sales amount row number 1 (rn = 1).
+In this case, rows are partitioned by the values in the 'year' column of the dim_date_times table.
+
+Taking the results from the last subquery:
+
+Sales amount, year, and month are selected, and filtering the results where row number (rn) is equal to 1, the result obtained is the best month per year in terms of sales.
+
+
+## TASK 7:
+The operations team would like to know the overall staff numbers in each location around the world. Perform a query to determine the staff numbers in each of the countries the company sells in.
+
+SELECT country_code, SUM(staff_numbers) AS total_staff_numbers
+FROM dim_store_details
+GROUP BY country_code
+ORDER BY total_staff_numbers DESC;
+
+![Task 7 Result](task_7.png)
+
+## TASK 8:
+
+The sales team is looking to expand their territory in Germany. Determine which type of store is generating the most sales in Germany.
+
+This is done by selecting store type, country code, and sales while stablishing country_code = 'DE'
+
+SELECT  store_type, country_code, ROUND(SUM(orders_table.product_quantity * dim_products.product_price)::numeric,2) AS sales
+
+  FROM orders_table
+  JOIN dim_store_details ON orders_table.store_code = dim_store_details.store_code
+  JOIN dim_products ON orders_table.product_code = dim_products.product_code
+  WHERE country_code = 'DE'
+  GROUP BY store_type, country_code
+  ORDER BY sales ASC;
+
+![Task 8 Result](task_8.png)
+
+## TASK 9:
+
+Sales would like to get an accurate metric for how quickly the company is making sales.
+Determine the average time taken between each sale grouped by year.
+
+  SELECT
+    year::integer,
+    json_build_object(
+      'hours', AVG(EXTRACT(HOUR FROM time_diff))::integer,
+      'minutes', AVG(EXTRACT(MINUTE FROM time_diff))::integer,
+      'seconds', AVG(EXTRACT(SECOND FROM time_diff))::integer,
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))::integer
+    ) AS avg_time_diff
+  FROM (
+    SELECT
+      year::integer,
+      CASE WHEN LEAD(timestamp) OVER (PARTITION BY year::integer ORDER BY month::integer, day::integer, timestamp) >= timestamp
+        THEN LEAD(timestamp) OVER (PARTITION BY year::integer ORDER BY month::integer, day::integer, timestamp) - timestamp
+        ELSE timestamp - LEAD(timestamp) OVER (PARTITION BY year::integer ORDER BY month::integer, day::integer, timestamp)
+      END AS time_diff
+    FROM dim_date_times
+  ) subquery
+  GROUP BY year
+  ORDER BY AVG(EXTRACT(EPOCH FROM time_diff)) DESC;
+
+The most important query here, is the subquery where the use of LEAD is put into practice. This function allows to access the value of a column from a subsequent row in the same result set. It is used to retrieve the next timestamp value within each group defined by the 'PARTITION BY' clause.
+
+LEAD(timestamp) OVER(PARTITION BY year ORDER BY month, day, timestamp) would give the next timestamp value within each group defined by the PARTITION BY clause and ordered by month, day, and timestamp. Hence, if the next timestamp is subtracted from the present one, the result is the time difference between ordered timestamps. 
+
+This query obtains the difference between all of the timestamps ordered, and can lead to errors because some of the results are negative. To prevent that, the use of CASE is put into practice to define the case where timestamp difference is negative or positive and take its absolute value.
+
+![Task 9 Result 1](task_9_1.png)
+
+Another, and better approach is to use the year, month, day columns to create a new column called complete_timestamp. Then, take the difference between consecutive complete_timestamp values and average them per year. 
+
+  SELECT
+    year,
+    CAST(AVG(time_diff) AS INTERVAL) AS avg_time_diff 
+  FROM (
+    SELECT
+      year,
+      month,
+      day,
+      timestamp,
+      TO_TIMESTAMP(year || '-' || month || '-' || day || ' ' || timestamp, 'YYYY-MM-DD HH24:MI:SS') AS complete_timestamp,
+      LEAD(TO_TIMESTAMP(year || '-' || month || '-' || day || ' ' || timestamp, 'YYYY-MM-DD HH24:MI:SS')) OVER (PARTITION BY year ORDER BY year, month, day, timestamp) - TO_TIMESTAMP(year || '-' || month || '-' || day || ' ' || timestamp, 'YYYY-MM-DD HH24:MI:SS') AS time_diff
+    FROM dim_date_times
+  ) subquery
+  GROUP BY year
+  ORDER BY avg_time_diff DESC;
+
+![Task 9 Result 2](task_9_2.png)
+
