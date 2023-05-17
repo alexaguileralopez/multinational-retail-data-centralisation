@@ -518,3 +518,29 @@ Another, and better approach is to use the year, month, day columns to create a 
 
 ![Task 9 Result 2](task_9_2.png)
 
+
+The final and best approach is to use that TO_TIMESTAMP function where day, month and year are taken as integers. After that, year and the average of time difference grouped per year are taken (as an interval type object). Finally, from that interval object, a json object is built extracting the HOUR, MINUTE and SECOND from the interval. 
+
+SELECT
+  year,
+  json_build_object(
+    'hours', EXTRACT(HOUR FROM time_diff_year),
+    'minutes', EXTRACT(MINUTE FROM time_diff_year),
+	'seconds', EXTRACT(SECOND FROM time_diff_year)) AS avg_time_diff_json
+FROM (
+  SELECT
+    year,
+    AVG(time_diff) AS time_diff_year
+  FROM (
+    SELECT
+      year,
+      timestamp,
+      LEAD(TO_TIMESTAMP(year::integer || '-' || month::integer || '-' || day::integer || ' ' || timestamp, 'YYYY-MM-DD HH24:MI:SS')) OVER (PARTITION BY year::integer ORDER BY year::integer, month::integer, day::integer, timestamp) - TO_TIMESTAMP(year::integer || '-' || month::integer || '-' || day::integer || ' ' || timestamp, 'YYYY-MM-DD HH24:MI:SS') AS time_diff
+    FROM dim_date_times
+  ) subquery
+  GROUP BY year
+) AS avg_time_diff
+ORDER BY time_diff_year DESC;
+
+
+![Task 9 Final Result](task_9_3.png)
