@@ -43,6 +43,7 @@ class DataCleaning:
         clean_user_data['date_of_birth'] = clean_user_data['date_of_birth'].apply(convert_date)
         clean_user_data['join_date'] = clean_user_data['date_of_birth'].apply(convert_date)
 
+        # remove na from dates 
         clean_user_data = clean_user_data[~clean_user_data['date_of_birth'].isna()]
         clean_user_data = clean_user_data[~clean_user_data['join_date'].isna()]
 
@@ -54,10 +55,6 @@ class DataCleaning:
 
         
         
-        #date_format = "%Y-%m-%d"
-        #clean_user_data["date_of_birth"] = pd.to_datetime(clean_user_data["date_of_birth"], format= date_format, errors= 'coerce')
-        #clean_user_data["join_date"] = pd.to_datetime(clean_user_data["join_date"], format= date_format, errors='coerce')
-
         #last step is to drop null values, and to reset the index, as 
         # less values will appear now that some will be dropped
         clean_user_data.dropna()
@@ -69,12 +66,11 @@ class DataCleaning:
 
     def clean_card_data(self, card_data = DataExtractor().retrieve_pdf_data("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf")):
         
-        # first drop the values that contain NULL as a string  
-        #card_data.drop(card_data['expiry_date']==''.index, inplace= True)
 
         # card data to store values that do not contain the string 'NULL'
         card_data = card_data[card_data.apply(lambda row: not row.astype(str).str.contains('NULL').any(), axis=1)]
 
+        #stablish formats in which dates could be in
         formats = ['%d %b %Y', '%Y %b %d','%Y %B %d','%Y-%m-%d', '%B %Y %d', '%m/%y' ] # the formats the data is in
         def convert_date(date_str):
             for fmt in formats:
@@ -86,23 +82,15 @@ class DataCleaning:
                     pass
             return pd.NaT
         
-        #store_data['opening_date'] = store_data['opening_date'].apply(convert_date)
+        #apply formatting
         card_data['expiry_date'] = card_data['expiry_date'].apply(convert_date)
         card_data['date_payment_confirmed'] = card_data['date_payment_confirmed'].apply(convert_date)
         
 
-       
-        ######card_data = card_data[~card_data['expiry_date'].isna()]
-        ######card_data = card_data[~card_data['date_payment_confirmed'].isna()]
-
-        #store_data['opening_date'] = store_data['opening_date'].dt.strftime('%Y-%m-%d')
+        #convert dates to string following formats
         card_data['expiry_date'] = card_data['expiry_date'].dt.strftime('%Y-%m-%d')
         card_data['date_payment_confirmed'] = card_data['date_payment_confirmed'].dt.strftime('%Y-%m-%d')
 
-        
-        #card_data['date_payment_confirmed'] = pd.to_datetime(card_data['date_payment_confirmed'], errors= 'coerce', infer_datetime_format= True, format= '%Y-%m-%d')
-
-        #card_data['expiry_date'] = pd.to_datetime(card_data['expiry_date'], errors= 'coerce', format= '%m/%y')
 
         #card_data.dropna()
         card_data.reset_index(drop= True, inplace= True)
@@ -142,8 +130,6 @@ class DataCleaning:
         # cleaning dirty data
 
         #dropping those rows that contain invalid values for number of staff members
-        #store_data['staff_numbers'] = store_data['staff_numbers'].str.replace('n', '', regex=False)
-        #store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors= 'coerce')
         store_data['staff_numbers'] = store_data['staff_numbers'].str.extract('(\d+)', expand=False) 
         # (\d+) extracts one or more digits and thus characters are removed
         store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors='coerce')
@@ -172,10 +158,7 @@ class DataCleaning:
         #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz|\s)?\.?'
         #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz)?(?:\s|\.)?'
         #pattern = r'(\d+\.\d+|\d+)\s*x\s*(\d+\.\d+|\d+|)\s*(kg|g|ml|oz|\s)?\.?\s*$'
-        
-
-        
-        
+         
         # using lambda fxns to change the units
         # the first expression searchs for the mentioned pattern and 
         # replaces it multiplying the 2 'groups' of numbers
