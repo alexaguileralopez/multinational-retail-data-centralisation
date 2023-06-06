@@ -64,7 +64,7 @@ class DatabaseConnector:
 
         HOST = 'localhost'
         USER = 'postgres'
-        PASSWORD = 'Iliberis2017'
+        PASSWORD = '************'
         DATABASE = 'Sales_Data'
         PORT = 5432
         DATABASE_TYPE = 'postgresql'

@@ -648,7 +648,7 @@ The company is looking to increase its online sales. They want to know how many 
     location;
 
 
-![Result table](task_4.png)
+![Result table](images/task_4.png)
 
 The 'SELECT' clause specifies that the columns that will be shown are 'location', distinguishing between online and offline, total_sales as a count of each time that sales are online or offline, and number of sales, as the sum of product quantity in online or offline sales. 
 
@@ -673,7 +673,7 @@ The sales team wants to know which of the different store types is generated the
 
 The query returns:
 
-![Result table 5](task_5.png)
+![Result table 5](images/task_5.png)
 
  'COUNT(*) * 100.0 / SUM(COUNT(*)) OVER ()' calculates the ratio of the count of rows for each sales type to the total count of all rows in the result set.
 
@@ -698,7 +698,7 @@ By selecting information from orders_table, dim_products, and dim_date_times, it
   ORDER BY total_sales DESC
   LIMIT 10;
 
-![Task 6 Result](task_6.png)
+![Task 6 Result](images/task_6.png)
 
 Here, a subquery is needed to get the sales amount by year and month.
 Multiplying the quantity of products sold ('orders_table.product_quantity') with their respective prices ('dim_products.product_price) gives the sales amount per order. Grouping the sales by year and month gives the total sales amount for each month in each year. 
@@ -719,7 +719,7 @@ FROM dim_store_details
 GROUP BY country_code
 ORDER BY total_staff_numbers DESC;
 
-![Task 7 Result](task_7.png)
+![Task 7 Result](images/task_7.png)
 
 ## TASK 8:
 
@@ -736,7 +736,7 @@ SELECT  store_type, country_code, ROUND(SUM(orders_table.product_quantity * dim_
   GROUP BY store_type, country_code
   ORDER BY sales ASC;
 
-![Task 8 Result](task_8.png)
+![Task 8 Result](images/task_8.png)
 
 ## TASK 9:
 
@@ -769,7 +769,7 @@ LEAD(timestamp) OVER(PARTITION BY year ORDER BY month, day, timestamp) would giv
 
 This query obtains the difference between all of the timestamps ordered, and can lead to errors because some of the results are negative. To prevent that, the use of CASE is put into practice to define the case where timestamp difference is negative or positive and take its absolute value.
 
-![Task 9 Result 1](task_9_1.png)
+![Task 9 Result 1](images/task_9_1.png)
 
 Another, and better approach is to use the year, month, day columns to create a new column called complete_timestamp. Then, take the difference between consecutive complete_timestamp values and average them per year. 
 
@@ -789,7 +789,7 @@ Another, and better approach is to use the year, month, day columns to create a 
   GROUP BY year
   ORDER BY avg_time_diff DESC;
 
-![Task 9 Result 2](task_9_2.png)
+![Task 9 Result 2](images/task_9_2.png)
 
 
 The final and best approach is to use that TO_TIMESTAMP function where day, month and year are taken as integers. After that, year and the average of time difference grouped per year are taken (as an interval type object). Finally, from that interval object, a json object is built extracting the HOUR, MINUTE and SECOND from the interval. 
@@ -816,5 +816,5 @@ FROM (
 ORDER BY time_diff_year DESC;
 
 
-![Task 9 Final Result](task_9_3.png)
+![Task 9 Final Result](images/task_9_3.png)
  
