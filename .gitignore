@@ -1,10 +1,6 @@
 images/
 raw_dataframes/
-db_creds.yaml
-header_details.yaml
-Project_Notebook.ipynb
-tester_2.py
-tester.py
+creds_and_testing/
 
 
 
