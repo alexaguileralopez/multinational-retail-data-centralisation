@@ -60,7 +60,7 @@ class DataExtractor:
         return dfs
     
 
-    def list_number_of_stores(self):
+    def list_number_of_stores(self, url, header):
 
         """
         List the number of stores from a RESTful API.

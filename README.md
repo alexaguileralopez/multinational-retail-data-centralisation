@@ -11,7 +11,7 @@ In this document, the discussed project is the Multinational Data Centralisation
 
 ## SETTING UP pgAdmin4
 
-The first step is to set up a new database within pgadmin4, and name it sales_data. This is the database that will store the extracted information. 
+The first step is to set up a new database within pgadmin4, and name it sales_data. This is the database that will store the extracted information. Here, the STAR based schema will be created and the information will be managed. 
 
 ## data_extraction.py
 
