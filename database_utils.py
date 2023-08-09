@@ -5,29 +5,32 @@ from sqlalchemy import create_engine
 from sqlalchemy import inspect
 from sqlalchemy import text
 import pandas as pd
-## from data_cleaning import DataCleaning
-## from database_utils import DatabaseConnector
 import mysql 
-
-
 
 class DatabaseConnector:
 
-    def __init__(self):
-        pass
 
     def read_db_creds(self):
-        with open('db_creds.yaml') as f:
-            creds = yaml.safe_load(f)
 
-            #returns dictionary of credentials
+        """
+        Obtain the credentials of the local database.
+        This method reads database credentials from a YAML file.
+
+        """
+
+        with open('creds_and_testing/db_creds.yaml') as f:
+            creds = yaml.safe_load(f)
         return creds
         
     def init_db_engine(self):
         
-        # call read db creds once and get credentials
+        """
+        Initialize a database engine using the obtained credentials.
+        This method creates a database engine using the credentials obtained from the credentials dictionary.
+
+        """
+
         creds = self.read_db_creds()
-        #calls read db creds method to get credentials from yaml file
         HOST = creds['RDS_HOST']
         USER = creds['RDS_USER']
         PASSWORD = creds['RDS_PASSWORD']
@@ -36,31 +39,34 @@ class DatabaseConnector:
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
 
-        #creates engine with the data supplied by the creds dictionary
         engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
 
         return engine
 
 
     def list_db_tables(self):
-        
-        #receive engine created in method to initialise it
+
+        """
+        List all tables in the connected database.
+        This method uses the engine to select tables from an external database and returns a list of table names.
+
+        """
         engine = self.init_db_engine()
-        # connect to engine
         with engine.connect() as connection:
-            #selects all tables from dataset
+
             result = connection.execute(text("""SELECT table_name FROM information_schema.tables 
-            WHERE table_schema = 'public' """))
-
-
+            WHERE table_schema = 'public' """)) # Selects all tables from dataset
             result = result.fetchall()
-            # returns list of all tables inside the database
-            return result
-        
 
-    # to make use of this method, it is necessary to provide a dataframe (from data cleaning),
-    # the table name that it is going to be saved as
+            return result
+
     def upload_to_db(self, dataframe = pd.DataFrame, table_name=str):
+
+        """
+        Upload a pandas DataFrame to the connected database.
+        This method takes a pandas DataFrame and uploads it to the connected PostgreSQL database.
+
+        """
 
         HOST = 'localhost'
         USER = 'postgres'
